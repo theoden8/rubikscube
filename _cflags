@@ -1,0 +1,1 @@
+$(./link_glfw3) $(pkg-config --libs --cflags glew) -g2

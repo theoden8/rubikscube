@@ -1,0 +1,5 @@
+#!/bin/bash
+
+rm -vf *.trace
+apitrace trace bin/x86_64/_binary
+apitrace dump *.trace

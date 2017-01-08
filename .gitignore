@@ -1,0 +1,5 @@
+*.trace
+*.log
+rubik
+rubik.dSYM
+rubik.log

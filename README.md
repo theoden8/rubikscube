@@ -1,29 +1,24 @@
-# README #
+# README
 
-This README would normally document whatever steps are necessary to get your application up and running.
+## Author
 
-### What is this repository for? ###
+Created by Kirill Rodriguez in January 2017.
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+## Built with
 
-### How do I get set up? ###
+* c++, make
+* glm, glfw, opengl4, glsl
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+## LICENSE
 
-### Contribution guidelines ###
+Not licensed yet and not for public use.
 
-* Writing tests
-* Code review
-* Other guidelines
+## Usage
 
-### Who do I talk to? ###
+### Compilation
 
-* Repo owner or admin
-* Other community or team contact
+	make
+
+### Running
+
+	./rubik
