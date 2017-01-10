@@ -1,0 +1,4 @@
+#!/bin/bash
+
+pkg-config --libs --cflags glew
+./link_glfw3

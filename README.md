@@ -1,5 +1,7 @@
 # README
 
+![picture](./_Icon.gif)
+
 ## Author
 
 Created by Kirill Rodriguez in January 2017.
