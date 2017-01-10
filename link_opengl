@@ -1,4 +1,0 @@
-#!/bin/bash
-
-[ $(uname) = Darwin ] && echo "-framework OpenGL"
-[ $(uname) = Linux ] && pkg-config --libs --cflags gl
