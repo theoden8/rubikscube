@@ -26,8 +26,8 @@ class ShaderProgram {
 public:
   ShaderProgram(const std::string &vert, const std::string &frag);
 
-  void compile();
   void use();
+  void compile();
   operator GLuint();
   void bind(const std::vector <std::string> &locations);
   void clear();

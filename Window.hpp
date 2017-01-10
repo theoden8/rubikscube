@@ -17,7 +17,7 @@ class Window {
 public:
   Window(size_t width, size_t height);
   void gl_version();
-  void display();
   void idle();
+  void display();
   ~Window();
 };

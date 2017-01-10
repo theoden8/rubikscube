@@ -21,7 +21,6 @@ CubeFace<N>::CubeFace(std::array <glm::vec3 *, 4> corners, SIDE side):
 
 template <size_t N>
 void CubeFace<N>::construct() {
-  std::cout << "starting cubeface::cubeface" << std::endl;
   quads = (Quad *)malloc((N * N) * sizeof(Quad));
   glm::vec3
     botleft(*corners[0]);
@@ -45,7 +44,6 @@ void CubeFace<N>::construct() {
       botleft += step_right;
     }
   }
-  std::cout << "finished initializing cubeface" << std::endl;
 }
 
 template <size_t N>

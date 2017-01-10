@@ -62,12 +62,12 @@ ShaderProgram::ShaderProgram(const std::string &vert, const std::string &frag):
   vert_fname(vert), frag_fname(frag)
 {}
 
-void ShaderProgram::compile() {
-  compile_program();
-}
-
 void ShaderProgram::use() {
   glUseProgram(*this); GLERROR
+}
+
+void ShaderProgram::compile() {
+  compile_program();
 }
 
 ShaderProgram::operator GLuint() {
