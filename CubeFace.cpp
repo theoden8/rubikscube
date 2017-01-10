@@ -14,29 +14,38 @@ glm::vec3 CubeFace<N>::get_color(SIDE side) {
 }
 
 template <size_t N>
-CubeFace<N>::CubeFace(std::array <glm::vec3, 4> corners, SIDE side):
-  colors(N * N, side), quads(NULL)
-{
+CubeFace<N>::CubeFace(std::array <glm::vec3 *, 4> corners, SIDE side):
+  colors(N * N, side),
+  corners(corners)
+{}
+
+template <size_t N>
+void CubeFace<N>::construct() {
+  std::cout << "starting cubeface::cubeface" << std::endl;
   quads = (Quad *)malloc((N * N) * sizeof(Quad));
-  glm::vec3 botleft(corners[0]);
-  glm::vec3 botright(corners[1]);
-  glm::vec3 topleft(corners[3]);
-  glm::vec3 step_right = (botright - botleft) / (float)N;
-  glm::vec3 step_up = (topleft - botleft) / (float)N;
-  glm::vec3 little(.05, .05, .05);
+  glm::vec3
+    botleft(*corners[0]);
+  glm::vec3
+    step_right = (*corners[1] - botleft) / (float)N,
+    step_up = (*corners[3] - botleft) / (float)N;
+  glm::vec3
+    little(.05, .05, .05),
+    xlittle = glm::vec3(1., 1., 1.) - little;
   for(size_t y = 0; y < N; ++y) {
+    botleft = *corners[0] + step_up * (float)y;
     for(size_t x = 0; x < N; ++x) {
-      glm::vec3 new_botleft = botleft + step_right * (float)x + step_up * (float)y;
       quads[y * N + x] = Quad({
-          new_botleft,
-          new_botleft + step_right - little * step_right,
-          new_botleft + step_right + step_up - little * step_up - little * step_right,
-          new_botleft + step_up - little * step_up,
+          botleft,
+          botleft + step_right * xlittle,
+          botleft + step_right*xlittle + step_up*xlittle,
+          botleft + step_up*xlittle
         },
         get_color(colors[y * N + x])
       );
+      botleft += step_right;
     }
   }
+  std::cout << "finished initializing cubeface" << std::endl;
 }
 
 template <size_t N>

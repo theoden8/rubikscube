@@ -1,5 +1,6 @@
 #include <cassert>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -14,6 +15,18 @@ PositionBuffer::VertexBuffer(std::vector <glm::vec3> data):
   size_t i = 0;
   for(const auto &c : data) {
     memcpy(&buffer[i], &c.x, sizeof(float) * 3);
+    i += 3;
+  }
+}
+
+template <>
+PositionBuffer::VertexBuffer(std::vector <glm::vec3 *> data):
+  size(3 * data.size())
+{
+  buffer = (float *)malloc(sizeof(float) * size);
+  size_t i = 0;
+  for(const auto &c : data) {
+    memcpy(&buffer[i], &c->x, sizeof(float) * 3);
     i += 3;
   }
 }

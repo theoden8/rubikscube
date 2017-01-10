@@ -6,8 +6,8 @@
 
 template <size_t N>
 class Cube {
-  typedef CubeFace<N> cb_face_t;
-  cb_face_t *sides;
+  typedef CubeFace<N> cbface_t;
+  cbface_t *sides;
 public:
   glm::vec3 center;
   Cube(glm::vec3 center, float h);
