@@ -5,11 +5,11 @@
 #include "VertexBuffer.hpp"
 #include "Triangle.hpp"
 
-class Quad {
+struct Quad {
   PositionBuffer position;
   glm::vec3 color;
   Triangle trifirst, trisecond;
-public:
+
   Quad(PositionBuffer position, glm::vec3 &color);
   void init();
   void draw();

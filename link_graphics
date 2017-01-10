@@ -10,13 +10,12 @@ link_glew() {
 }
 
 link_glfw3() {
-  ./link_opengl
-    [ $(uname) = Darwin ] && {
-      pkg-config --libs --cflags glfw3
-    } || {
-      [ $(lsb_release -si) = Fedora ] && pkg-config --libs --cflags libglfw
-      [ $(lsb_release -si) = Ubuntu ] && pkg-config --libs --cflags glfw3
-    }
+  [ $(uname) = Darwin ] && {
+    pkg-config --libs --cflags glfw3
+  } || {
+    [ $(lsb_release -si) = Fedora ] && pkg-config --libs --cflags libglfw
+    [ $(lsb_release -si) = Ubuntu ] && pkg-config --libs --cflags glfw3
+  }
 }
 
 link_graphics() {
