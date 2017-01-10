@@ -18,9 +18,7 @@ class Triangle {
   void disable_vao_attribs();
 public:
   Triangle(PositionBuffer vertices, glm::vec3 &color);
-  void init();
-  void draw();
   operator GLuint();
-  void clear();
+  void init(), draw(), clear();
   ~Triangle();
 };

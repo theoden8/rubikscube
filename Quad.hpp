@@ -1,18 +1,19 @@
 #pragma once
 
+#include <array>
+
 #include <glm/glm.hpp>
 
+#include "Colors.hpp"
 #include "VertexBuffer.hpp"
 #include "Triangle.hpp"
 
 struct Quad {
-  PositionBuffer position;
+  std::array <glm::vec3, 4> corners;
   glm::vec3 color;
   Triangle trifirst, trisecond;
 
-  Quad(PositionBuffer position, glm::vec3 &color);
-  void init();
-  void draw();
-  void clear();
+  Quad(std::array <glm::vec3, 4> corners, glm::vec3 color);
+  void init(), draw(), clear();
   ~Quad();
 };

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string>
 
+#include "Quad.hpp"
 #include "Window.hpp"
 #include "VertexBuffer.hpp"
 #include "Triangle.hpp"
@@ -52,15 +53,7 @@ void Window::init_controls() {
 Window::Window(size_t width, size_t height):
   width(width), height(height),
   shader_program("shader.vert", "shader.frag"),
-  quadbuf(
-    PositionBuffer({
-      glm::vec3(0.5f,  0.5f, 0.0f),
-      glm::vec3(0.5f, -0.5f, 0.0f),
-      glm::vec3(-0.5f, -0.5f, 0.0f),
-      glm::vec3(-0.5f, 0.5f, 0.0f),
-    }),
-    color::red
-  )
+  cubebuffer(glm::vec3(0., 0., 0.), .5)
 {
   start();
 }
@@ -78,7 +71,7 @@ void Window::display() {
   /* sleep(1); */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERROR
   shader_program.use(); GLERROR
-  quadbuf.draw(); GLERROR
+  cubebuffer.draw(); GLERROR
   glfwPollEvents(); GLERROR
   glfwSwapBuffers(win_); GLERROR
   if(glfwGetKey(win_, GLFW_KEY_ESCAPE)) {
@@ -89,7 +82,9 @@ void Window::display() {
 void Window::idle() {
   glEnable(GL_DEPTH_TEST); GLERROR
   glDepthFunc(GL_LESS); GLERROR
-  quadbuf.init();
+  /* glPolygonMode(GL_FRONT, GL_FILL); GLERROR */
+  /* glPolygonMode(GL_BACK, GL_LINE); GLERROR */
+  cubebuffer.init();
   shader_program.compile();
   shader_program.bind({"vposition", "vcolor"});
   shader_program.is_valid();
@@ -102,7 +97,7 @@ void Window::idle() {
 }
 
 Window::~Window() {
-  quadbuf.clear(); GLERROR
+  cubebuffer.clear(); GLERROR
   shader_program.clear(); GLERROR
   glfwTerminate(); GLERROR
 }

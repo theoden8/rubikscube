@@ -1,28 +1,25 @@
+#include <array>
+
 #include "Quad.hpp"
 #include "VertexBuffer.hpp"
 #include "Log.hpp"
 #include "Colors.hpp"
 
-#define p position.buffer
-Quad::Quad(PositionBuffer position, glm::vec3 &color):
-  color(color),
-  position(position),
+Quad::Quad(std::array <glm::vec3, 4> corners, glm::vec3 color):
+  corners(corners), color(color),
   trifirst(
     PositionBuffer({
-      glm::vec3(p[0], p[1], p[2]),
-      glm::vec3(p[3], p[4], p[5]),
-      glm::vec3(p[6], p[7], p[8]),
+      corners[0],
+      corners[1],
+      corners[2]
     }), color),
   trisecond(
     PositionBuffer({
-      glm::vec3(p[0], p[1], p[2]),
-      glm::vec3(p[6], p[7], p[8]),
-      glm::vec3(p[9], p[10], p[11]),
+      corners[0],
+      corners[2],
+      corners[3]
     }), color)
-#undef p
-{
-  ASSERT(position.size == 3 * 4);
-}
+{}
 
 void Quad::init() {
   trifirst.init();

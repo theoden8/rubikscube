@@ -5,15 +5,8 @@
 #include "Colors.hpp"
 
 void Triangle::bind_vertex_buffer() {
-  glGenBuffers(1, &vertices.vbo); GLERROR
-  glBindBuffer(GL_ARRAY_BUFFER, vertices); GLERROR
-  glBufferData(GL_ARRAY_BUFFER, vertices.size * sizeof(float), vertices.buffer, GL_STATIC_DRAW); GLERROR
-  assert(vertices.vbo != 0);
-
-  glGenBuffers(1, &color.vbo); GLERROR
-  glBindBuffer(GL_ARRAY_BUFFER, color); GLERROR
-  glBufferData(GL_ARRAY_BUFFER, color.size * sizeof(float), color.buffer, GL_STATIC_DRAW); GLERROR
-  assert(color.vbo != 0);
+  vertices.init();
+  color.init();
 }
 
 void Triangle::create_buffer_layout() {
@@ -44,6 +37,10 @@ Triangle::Triangle(PositionBuffer vertices, glm::vec3 &color):
   ASSERT(vertices.size == 3 * 3);
 }
 
+Triangle::operator GLuint() {
+  return vao;
+}
+
 void Triangle::init() {
   bind_vertex_buffer();
   create_buffer_layout();
@@ -55,18 +52,11 @@ void Triangle::draw() {
   glDrawArrays(GL_TRIANGLES, 0, 3); GLERROR
 }
 
-Triangle::operator GLuint() {
-  return vao;
-}
-
 void Triangle::clear() {
-  glDeleteBuffers(1, &vertices.vbo); GLERROR
-  glDeleteBuffers(1, &color.vbo); GLERROR
+  vertices.clear();
+  color.clear();
   glDeleteVertexArrays(1, &vao); GLERROR
 }
 
 Triangle::~Triangle()
-{
-  vertices.clear();
-  color.clear();
-}
+{}

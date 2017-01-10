@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Quad.hpp"
+#include "Cube.hpp"
 #include "Shader.hpp"
 #include "incgraphics.h"
 
 class Window {
   GLFWwindow *win_ = NULL;
   size_t width, height;
-  Quad quadbuf;
+  Cube <3> cubebuffer;
   ShaderProgram shader_program;
 
   void start();

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Log.hpp"
 #include "VertexBuffer.hpp"
 
 template <>
@@ -21,7 +22,15 @@ VertexBuffer::operator GLuint() {
   return vbo;
 }
 
+void VertexBuffer::init() {
+  glGenBuffers(1, &vbo); GLERROR
+  glBindBuffer(GL_ARRAY_BUFFER, vbo); GLERROR
+  glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), buffer, GL_STATIC_DRAW); GLERROR
+  ASSERT(vbo != 0);
+}
+
 void VertexBuffer::clear() {
+  glDeleteBuffers(1, &vbo); GLERROR
   free(buffer);
 }
 

@@ -8,13 +8,15 @@
 
 struct VertexBuffer {
   GLuint vbo = 0;
-  const size_t size;
+  size_t size = 0;
   float *buffer = NULL;
 
   template <typename T = glm::vec3>
   VertexBuffer(std::vector <T> data);
   operator GLuint();
-  void clear();
+  void
+    init(),
+    clear();
   ~VertexBuffer();
 };
 

@@ -10,7 +10,7 @@
 #include "Window.hpp"
 
 int main() {
-  Window w(1280, 720);
+  Window w(960, 960);
   w.gl_version();
   w.idle();
 }
