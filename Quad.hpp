@@ -9,11 +9,12 @@
 #include "Triangle.hpp"
 
 struct Quad {
-  glm::vec3 color;
+  ColorBuffer colorbuf;
   Triangle trifirst, trisecond;
 
-  Quad(std::array <glm::vec3, 4> corners, glm::vec3 color);
-  Quad(std::array <glm::vec3 *, 4> corners, glm::vec3 color);
-  void init(), draw(), clear();
+  Quad(std::array <glm::vec3, 4> corners, glm::vec3 &color);
+  Quad(std::array <glm::vec3 *, 4> corners, glm::vec3 &color);
+  void change_color(glm::vec3 &color);
+  void init(), update(), draw(), clear();
   ~Quad();
 };

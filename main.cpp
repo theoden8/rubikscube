@@ -11,7 +11,8 @@
 
 int main() {
   Window w(960, 960);
-  w.gl_version();
+  /* w.gl_version(); */
+  /* w.gl_version(); */
   w.idle();
 }
 

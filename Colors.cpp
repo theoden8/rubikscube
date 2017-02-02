@@ -10,11 +10,20 @@ namespace color {
     blue(0.0f, 0.0f, 1.0f),
     teal(0.0f, 1.0f, 1.0f),
     white(1.0f, 1.0f, 1.0f);
-}
 
-ColorBuffer make_color_buffer(glm::vec3 &color, int no_colors) {
-  /* if(colorbufs.count(color) == 0) */
-  /*   colorbufs[color] = ColorBuffer(std::vector<glm::vec3>(no_colors, color)); */
-  /* return colorbufs[color]; */
-  return ColorBuffer(std::vector<glm::vec3>(no_colors, color));
+  std::unordered_map <glm::vec3 *, ColorBuffer> colorbufs;
+
+  ColorBuffer make_buffer(glm::vec3 *color, int no_colors) {
+    /* if(colorbufs.count(color) == 0) { */
+    /*   colorbufs.insert(std::make_pair(color, ColorBuffer({color}))); */
+    /*   colorbufs.at(color).init(); */
+    /* } */
+    /* return colorbufs.at(color); */
+    return ColorBuffer({color, color, color});
+  }
+
+  void clear() {
+    /* for(auto &it : colorbufs) */
+    /*   it.second.clear(); */
+  }
 }

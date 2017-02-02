@@ -23,7 +23,7 @@ const char* GL_type_to_string(GLenum type);
 
 #define ASSERT(CONDITION) \
 	if(!(CONDITION)) { \
-		throw std::runtime_error("\033[1;91merror\033[0m" CODE_LOCATION CONDITION_TOSTR(CONDITION)); \
+		throw std::runtime_error("\033[1;91merror\033[0m at " CODE_LOCATION CONDITION_TOSTR(CONDITION)); \
 	}
 
 #define GLERROR { GLenum ret = glGetError(); if(ret != GL_NO_ERROR) { describe_error(ret); std::cerr << ret << std::endl; ASSERT(ret == GL_NO_ERROR); } };

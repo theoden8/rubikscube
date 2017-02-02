@@ -1,11 +1,12 @@
-#include "CubeFace.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
+#include "CubeFace.hpp"
 #include "VertexBuffer.hpp"
 #include "Log.hpp"
 #include "Colors.hpp"
 
 template <size_t N>
-glm::vec3 CubeFace<N>::get_color(SIDE side) {
+glm::vec3 &CubeFace<N>::get_color(CB_SIDE side) {
   static glm::vec3 palette[6] = {
     color::white, color::yellow, color::red,
     color::green, color::blue, color::teal
@@ -14,7 +15,7 @@ glm::vec3 CubeFace<N>::get_color(SIDE side) {
 }
 
 template <size_t N>
-CubeFace<N>::CubeFace(std::array <glm::vec3 *, 4> corners, SIDE side):
+CubeFace<N>::CubeFace(std::array <glm::vec3 *, 4> corners, CB_SIDE side):
   colors(N * N, side),
   corners(corners)
 {}
@@ -28,18 +29,18 @@ void CubeFace<N>::construct() {
     step_right = (*corners[1] - botleft) / (float)N,
     step_up = (*corners[3] - botleft) / (float)N;
   glm::vec3
-    little(.05, .05, .05),
+    little(.025, .025, .025),
     xlittle = glm::vec3(1., 1., 1.) - little;
   for(size_t y = 0; y < N; ++y) {
     botleft = *corners[0] + step_up * (float)y;
     for(size_t x = 0; x < N; ++x) {
+      glm::vec3 color = get_color(colors[y * N + x]);
       quads[y * N + x] = Quad({
-          botleft,
-          botleft + step_right * xlittle,
-          botleft + step_right*xlittle + step_up*xlittle,
-          botleft + step_up*xlittle
-        },
-        get_color(colors[y * N + x])
+          botleft + step_right * little + step_up * little,
+          botleft + step_right * xlittle + step_up * little,
+          botleft + step_right * xlittle + step_up * xlittle,
+          botleft + step_right * little + step_up * xlittle
+        }, color
       );
       botleft += step_right;
     }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 
@@ -11,8 +11,7 @@ namespace color {
   extern glm::vec3
     black, red, yellow, pink,
     green, blue, teal, white;
+
+  ColorBuffer make_buffer(glm::vec3 *color, int no_colors = 3);
+  void clear();
 }
-
-static std::map <glm::vec3, ColorBuffer> colorbufs;
-
-ColorBuffer make_color_buffer(glm::vec3 &color, int no_colors = 3);

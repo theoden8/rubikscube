@@ -1,10 +1,15 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "Cube.hpp"
 #include "Shader.hpp"
 #include "incgraphics.h"
 
+#include <glm/glm.hpp>
+
 class Window {
+  glm::vec4 rotation;
   GLFWwindow *win_ = NULL;
   size_t width, height;
   Cube <3> cubebuffer;
@@ -19,5 +24,7 @@ public:
   void gl_version();
   void idle();
   void display();
+  void keyboard();
+  void clear();
   ~Window();
 };

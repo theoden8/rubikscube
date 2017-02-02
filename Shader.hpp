@@ -17,8 +17,7 @@ class ShaderProgram {
     vert_fname, frag_fname;
 
   static char *load_text_file(const char *filename);
-  void compile_vert_shader();
-  void compile_frag_shader();
+  void compile_shader(GLuint &shader, GLenum type, const char *filename);
   void compile_program();
   void _print_info_log();
   void print_all();

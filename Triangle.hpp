@@ -10,15 +10,17 @@
 class Triangle {
   GLuint vao = 0;
   PositionBuffer vertices;
-  ColorBuffer color;
+public:
+  ColorBuffer *color = NULL;
+private:
 
   void bind_vertex_buffer();
   void create_buffer_layout();
   void enable_vao_attribs();
   void disable_vao_attribs();
 public:
-  Triangle(PositionBuffer vertices, glm::vec3 &color);
+  Triangle(PositionBuffer vertices, ColorBuffer *colorbuf);
   operator GLuint();
-  void init(), draw(), clear();
+  void init(), update(), draw(), clear();
   ~Triangle();
 };

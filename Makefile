@@ -8,7 +8,11 @@ BINARY = rubik
 
 $(shell mkdir -p build)
 
-all:;$(MAKE) $(BINARY) -j$(shell getconf _NPROCESSORS_ONLN)
+all:;$(MAKE) glsl;$(MAKE) $(BINARY) -j$(shell getconf _NPROCESSORS_ONLN)
+
+glsl:
+	glslangValidator $(wildcard *.vert)
+	glslangValidator $(wildcard *.frag)
 
 $(BINARY) : $(notdir $(patsubst %.cpp, %.o, $(OBJECTS)))
 	$(CXX) $(wildcard build/*.o) $(CXXFLAGS) $(LDFLAGS) -o $(BINARY)
