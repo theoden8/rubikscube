@@ -2,6 +2,10 @@
 
 ![picture](./_Icon.gif)
 
+## Screenshots
+
+![DEMO](./screenshots/rubiks1.png)
+
 ## Author
 
 Created by Kirill Rodriguez in January 2017.
