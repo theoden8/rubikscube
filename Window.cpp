@@ -51,7 +51,7 @@ Window::Window(size_t width, size_t height):
   width(width), height(height),
   shader_program("shader.vert", "shader.frag"),
   cubebuffer(glm::vec3(0., 0., 0.), .5),
-  rotation(0.f, 0.f, 0.f, 0.0f)
+  camera()
 {
   start();
 }
@@ -81,10 +81,10 @@ void Window::idle() {
 
 void Window::display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERROR
-  GLint u_rotation_vbo = glGetUniformLocation(shader_program, "rotation"); GLERROR
+  camera.attach_to_shader(shader_program, "rotation");
   shader_program.use(); GLERROR
   /* glUniform4fv(u_rotation_vbo, glm::value_ptr(rotation)); GLERROR */
-  glUniform4f(u_rotation_vbo, rotation[0], rotation[1], rotation[2], rotation[3]); GLERROR
+  camera.update_uniform();
   static int iters = 3;
   /* glPolygonMode(GL_FRONT, GL_FILL); GLERROR */
   /* glPolygonMode(GL_BACK, GL_LINE); GLERROR */
@@ -98,17 +98,17 @@ void Window::keyboard() {
   if(glfwGetKey(win_, GLFW_KEY_ESCAPE)) {
     glfwSetWindowShouldClose(win_, 1); GLERROR
   } else if(glfwGetKey(win_, GLFW_KEY_UP)) {
-    rotation[0] += 1.;
-    rotation[3] += .25;
+    camera.rotation.x += 1.;
+    camera.rotation.a += .25;
   } else if(glfwGetKey(win_, GLFW_KEY_DOWN)) {
-    rotation[0] -= 1.;
-    rotation[3] -= .25;
+    camera.rotation.x -= 1.;
+    camera.rotation.a -= .25;
   } else if(glfwGetKey(win_, GLFW_KEY_LEFT)) {
-    rotation[1] += 1.;
-    rotation[3] += .25;
+    camera.rotation.y += 1.;
+    camera.rotation.a += .25;
   } else if(glfwGetKey(win_, GLFW_KEY_RIGHT)) {
-    rotation[1] -= 1.;
-    rotation[3] -= .25;
+    camera.rotation.y -= 1.;
+    camera.rotation.a -= .25;
   } else if(glfwGetKey(win_, GLFW_KEY_W)) {
     printf("w");
     cubebuffer.rotate(CB_FRONT, Cube<3>::CB_RT_CW);
