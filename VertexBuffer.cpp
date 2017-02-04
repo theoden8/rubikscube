@@ -11,7 +11,7 @@
 #include "VertexBuffer.hpp"
 
 template <>
-PositionBuffer::VertexBuffer(std::vector <glm::vec3> data):
+PositionBuffer::VertexBuffer(std::vector <glm::vec3> &&data):
   size(3 * data.size())
 {
   buffer = (float *)malloc(sizeof(float) * size);
@@ -23,7 +23,7 @@ PositionBuffer::VertexBuffer(std::vector <glm::vec3> data):
 }
 
 template <>
-PositionBuffer::VertexBuffer(std::vector <const glm::vec3 *> data):
+PositionBuffer::VertexBuffer(std::vector <const glm::vec3 *> &&data):
   size(3 * data.size())
 {
   alloc = true;

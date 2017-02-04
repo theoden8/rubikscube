@@ -5,7 +5,7 @@
 #include "Log.hpp"
 
 template <size_t N>
-Cube<N>::Cube(glm::vec3 center, float h):
+Cube<N>::Cube(glm::vec3 &&center, float h):
   center(center), sides(NULL)
 {
   sides = (cbface_t *)malloc(sizeof(cbface_t) * (size_t)CB_NO_SIDES);

@@ -83,6 +83,7 @@ void Window::display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERROR
   GLint u_rotation_vbo = glGetUniformLocation(shader_program, "rotation"); GLERROR
   shader_program.use(); GLERROR
+  /* glUniform4fv(u_rotation_vbo, glm::value_ptr(rotation)); GLERROR */
   glUniform4f(u_rotation_vbo, rotation[0], rotation[1], rotation[2], rotation[3]); GLERROR
   static int iters = 3;
   /* glPolygonMode(GL_FRONT, GL_FILL); GLERROR */

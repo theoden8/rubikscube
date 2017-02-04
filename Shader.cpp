@@ -74,7 +74,7 @@ ShaderProgram::operator GLuint() {
   return program;
 }
 
-void ShaderProgram::bind(const std::vector <std::string> &locations) {
+void ShaderProgram::bind(const std::vector <std::string> &&locations) {
   for(size_t i = 0; i < locations.size(); ++i) {
     glBindAttribLocation(program, i, locations[i].c_str()); GLERROR
   }

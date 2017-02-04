@@ -14,6 +14,10 @@ typedef enum {
   CB_NO_SIDES
 } CB_SIDE;
 
+typedef enum {
+  CBF_LEFT, CBF_RIGHT, CBF_TOP, CBF_BOTTOM
+} CBF_STRIPE;
+
 template <size_t N>
 class CubeFace {
   std::vector <CB_SIDE> colors;
@@ -21,7 +25,7 @@ class CubeFace {
 public:
   Quad *quads = NULL;
   static glm::vec3 &get_color(CB_SIDE side);
-  CubeFace(std::array <glm::vec3 *, 4> corners, CB_SIDE side);
+  CubeFace(std::array <glm::vec3 *, 4> &&corners, CB_SIDE side);
   void construct();
   void init(), draw(), clear();
   ~CubeFace();

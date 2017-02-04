@@ -7,11 +7,11 @@
 #include "Log.hpp"
 #include "Colors.hpp"
 
-Quad::Quad(std::array <glm::vec3, 4> corners, glm::vec3 &color):
+Quad::Quad(std::array <glm::vec3, 4> &&corners, glm::vec3 &color):
   Quad({&corners[0], &corners[1], &corners[2], &corners[3]}, color)
 {}
 
-Quad::Quad(std::array <glm::vec3 *, 4> corners, glm::vec3 &color):
+Quad::Quad(std::array <glm::vec3 *, 4> &&corners, glm::vec3 &color):
   colorbuf(color::make_buffer(&color)),
   trifirst(
     PositionBuffer({

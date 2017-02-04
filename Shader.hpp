@@ -28,7 +28,7 @@ public:
   void use();
   void compile();
   operator GLuint();
-  void bind(const std::vector <std::string> &locations);
+  void bind(const std::vector <std::string> &&locations);
   void clear();
   ~ShaderProgram();
   bool is_valid();

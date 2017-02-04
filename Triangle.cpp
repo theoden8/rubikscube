@@ -37,7 +37,7 @@ void Triangle::disable_vao_attribs() {
 }
 
 
-Triangle::Triangle(PositionBuffer vertices, ColorBuffer *colorbuf):
+Triangle::Triangle(PositionBuffer &&vertices, ColorBuffer *colorbuf):
   vertices(vertices), color(colorbuf)
 {
   ASSERT(vertices.size == 3 * 3);

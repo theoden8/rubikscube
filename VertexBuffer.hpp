@@ -13,13 +13,13 @@ struct VertexBuffer {
   bool alloc = false;
 
   template <typename T = glm::vec3>
-    VertexBuffer(std::vector <T> data),
-    VertexBuffer(std::vector <const T *> data);
+    VertexBuffer(std::vector <T> &&data),
+    VertexBuffer(std::vector <const T *> &&data);
   operator GLuint();
   void
     init(),
-    clear();
-  void print() const;
+    clear(),
+    print() const;
   ~VertexBuffer();
 };
 

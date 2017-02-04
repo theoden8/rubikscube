@@ -9,7 +9,10 @@ namespace color {
     green(0.0f, 1.0f, 0.0f),
     blue(0.0f, 0.0f, 1.0f),
     teal(0.0f, 1.0f, 1.0f),
-    white(1.0f, 1.0f, 1.0f);
+    white(1.0f, 1.0f, 1.0f),
+    purple(0.5f, 0.0f, 0.5f),
+    brown(0.7f, 0.5f, 0.0f),
+    grey(0.3f, 0.3f, 0.3f);
 
   std::unordered_map <glm::vec3 *, ColorBuffer> colorbufs;
 

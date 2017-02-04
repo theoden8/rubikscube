@@ -19,7 +19,7 @@ private:
   void enable_vao_attribs();
   void disable_vao_attribs();
 public:
-  Triangle(PositionBuffer vertices, ColorBuffer *colorbuf);
+  Triangle(PositionBuffer &&vertices, ColorBuffer *colorbuf);
   operator GLuint();
   void init(), update(), draw(), clear();
   ~Triangle();

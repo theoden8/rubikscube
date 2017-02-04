@@ -8,14 +8,15 @@
 template <size_t N>
 glm::vec3 &CubeFace<N>::get_color(CB_SIDE side) {
   static glm::vec3 palette[6] = {
-    color::white, color::yellow, color::red,
-    color::green, color::blue, color::teal
+    color::red, color::yellow,
+    color::green, color::teal,
+    color::blue, color::purple,
   };
   return palette[side];
 }
 
 template <size_t N>
-CubeFace<N>::CubeFace(std::array <glm::vec3 *, 4> corners, CB_SIDE side):
+CubeFace<N>::CubeFace(std::array <glm::vec3 *, 4> &&corners, CB_SIDE side):
   colors(N * N, side),
   corners(corners)
 {}
