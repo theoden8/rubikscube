@@ -21,4 +21,5 @@ void Camera::attach_to_shader(ShaderProgram &program, const char *symbol) {
 
 void Camera::update_uniform() {
   glUniform4f(u_rotation, rotation.x, rotation.y, rotation.z, rotation.a); GLERROR
+  /* glUniform4fv(u_rotation_vbo, glm::value_ptr(rotation)); GLERROR */
 }

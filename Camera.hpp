@@ -1,5 +1,4 @@
-#ifndef CAMERA_HPP_2X7ORDDM
-#define CAMERA_HPP_2X7ORDDM
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -15,5 +14,3 @@ public:
   void attach_to_shader(ShaderProgram &program, const char *symbol);
   void update_uniform();
 };
-
-#endif

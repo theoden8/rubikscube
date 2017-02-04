@@ -37,8 +37,8 @@ void Window::init_glfw() {
 void Window::init_glew() {
   // Initialize GLEW
   glewExperimental = true; // Needed for core profile
-  ASSERT(glewInit() == GLEW_OK);
-  GLERROR
+  GLuint res = glewInit(); GLERROR
+  ASSERT(res == GLEW_OK);
 }
 
 void Window::init_controls() {
@@ -83,7 +83,6 @@ void Window::display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GLERROR
   camera.attach_to_shader(shader_program, "rotation");
   shader_program.use(); GLERROR
-  /* glUniform4fv(u_rotation_vbo, glm::value_ptr(rotation)); GLERROR */
   camera.update_uniform();
   static int iters = 3;
   /* glPolygonMode(GL_FRONT, GL_FILL); GLERROR */
@@ -110,7 +109,6 @@ void Window::keyboard() {
     camera.rotation.y -= 1.;
     camera.rotation.a -= .25;
   } else if(glfwGetKey(win_, GLFW_KEY_W)) {
-    printf("w");
     cubebuffer.rotate(CB_FRONT, Cube<3>::CB_RT_CW);
   }
 }
@@ -118,7 +116,6 @@ void Window::keyboard() {
 void Window::clear() {
   cubebuffer.clear(); GLERROR
   shader_program.clear(); GLERROR
-  color::clear();
   glfwTerminate(); GLERROR
 }
 

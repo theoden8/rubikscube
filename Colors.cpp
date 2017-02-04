@@ -14,19 +14,7 @@ namespace color {
     brown(0.7f, 0.5f, 0.0f),
     grey(0.3f, 0.3f, 0.3f);
 
-  std::unordered_map <glm::vec3 *, ColorBuffer> colorbufs;
-
-  ColorBuffer make_buffer(glm::vec3 *color, int no_colors) {
-    /* if(colorbufs.count(color) == 0) { */
-    /*   colorbufs.insert(std::make_pair(color, ColorBuffer({color}))); */
-    /*   colorbufs.at(color).init(); */
-    /* } */
-    /* return colorbufs.at(color); */
+  ColorBuffer make_buffer(glm::vec3 &color, int no_colors) {
     return ColorBuffer({color, color, color});
-  }
-
-  void clear() {
-    /* for(auto &it : colorbufs) */
-    /*   it.second.clear(); */
   }
 }

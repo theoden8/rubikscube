@@ -13,6 +13,5 @@ namespace color {
     green, blue, teal, white,
     purple, brown, grey;
 
-  ColorBuffer make_buffer(glm::vec3 *color, int no_colors = 3);
-  void clear();
+  ColorBuffer make_buffer(glm::vec3 &color, int no_colors = 3);
 }

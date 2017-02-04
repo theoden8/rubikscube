@@ -12,7 +12,7 @@ Quad::Quad(std::array <glm::vec3, 4> &&corners, glm::vec3 &color):
 {}
 
 Quad::Quad(std::array <glm::vec3 *, 4> &&corners, glm::vec3 &color):
-  colorbuf(color::make_buffer(&color)),
+  colorbuf(color::make_buffer(color)),
   trifirst(
     PositionBuffer({
       corners[0],
