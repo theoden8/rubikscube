@@ -108,7 +108,7 @@ void Window::keyboard() {
     camera.Rotate(0, 0, 1, 10);
   } else if(glfwGetKey(win_, GLFW_KEY_E)) {
     camera.Rotate(0, 0, 1, -10);
-  } else if(glfwGetKey(win_, GLFW_KEY_O)) {
+  } else if(glfwGetKey(win_, GLFW_KEY_P)) {
     cubebuffer.rotate(CB_FRONT, Cube<3>::CB_RT_CW);
   }
 }

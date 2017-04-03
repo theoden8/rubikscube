@@ -32,7 +32,7 @@ Quad::Quad(std::array <glm::vec3 *, 4> &&corners, glm::vec3 &color):
 void Quad::change_color(glm::vec3 &color) {
   int i = 0;
   for(auto &c : {color, color, color}) {
-    memcpy(&(colorbuf.buffer[i]), glm::value_ptr(c), sizeof(float) * 3);
+    memcpy(&colorbuf.buffer[i], glm::value_ptr(c), sizeof(float) * 3);
     i += 3;
   }
   update();

@@ -60,11 +60,11 @@ void Triangle::init() {
 void Triangle::update() {
   glBindVertexArray(vao);
 
-  glBindBuffer(GL_ARRAY_BUFFER, *color);
-  glVertexAttribPointer(0, color->size / 3, GL_FLOAT, GL_FALSE, 0, NULL); GLERROR
-
   glBindBuffer(GL_ARRAY_BUFFER, vertices);
   glVertexAttribPointer(0, vertices.size / 3, GL_FLOAT, GL_FALSE, 0, NULL); GLERROR
+
+  glBindBuffer(GL_ARRAY_BUFFER, *color);
+  glVertexAttribPointer(1, color->size / 3, GL_FLOAT, GL_FALSE, 0, NULL); GLERROR
 }
 
 void Triangle::draw() {
