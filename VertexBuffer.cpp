@@ -41,6 +41,9 @@ VertexBuffer::operator GLuint() {
 }
 
 void VertexBuffer::init() {
+  if(vbo != 0) {
+    return;
+  }
   ASSERT(vbo == 0);
   glGenBuffers(1, &vbo); GLERROR
   glBindBuffer(GL_ARRAY_BUFFER, vbo); GLERROR
@@ -49,6 +52,9 @@ void VertexBuffer::init() {
 }
 
 void VertexBuffer::clear() {
+  if(vbo != 0) {
+    return;
+  }
   glDeleteBuffers(1, &vbo); GLERROR
   alloc = false;
   ASSERT(!alloc || buffer != NULL);

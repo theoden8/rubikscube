@@ -13,7 +13,6 @@ class Triangle {
 public:
   ColorBuffer *color = NULL;
 private:
-
   void bind_vertex_buffer();
   void create_buffer_layout();
   void enable_vao_attribs();

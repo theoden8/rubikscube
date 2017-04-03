@@ -46,6 +46,7 @@ void Cube<N>::rotate(CB_SIDE side, CB_CW_CCW direction) {
 
 template <size_t N>
 void Cube<N>::init() {
+  Sprite::init();
   for(size_t i = 0; i < CB_NO_SIDES; ++i)
     sides[i].init();
 }
@@ -58,6 +59,7 @@ void Cube<N>::draw() {
 
 template <size_t N>
 void Cube<N>::clear() {
+  Sprite::clear();
   for(size_t i = 0; i < CB_NO_SIDES; ++i)
     sides[i].clear();
   free(sides);

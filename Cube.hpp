@@ -2,10 +2,12 @@
 
 #include <glm/glm.hpp>
 
+#include "Sprite.hpp"
 #include "CubeFace.hpp"
 
 template <size_t N>
 class Cube {
+  static Sprite sprite();
   typedef CubeFace<N> cbface_t;
   cbface_t *sides;
 public:

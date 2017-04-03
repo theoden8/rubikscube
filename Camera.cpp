@@ -1,25 +1,29 @@
 #include "Camera.hpp"
 
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Log.hpp"
 
-Camera::Camera():
-  rotation(0.f, 0.f, 0.f, 0.f)
+Camera::Camera()
 {}
 
 Camera::~Camera()
 {}
 
 Camera::operator GLuint() const {
-  return u_rotation;
+  return u_camera;
+}
+
+void Camera::Rotate(float x, float y, float z, float deg) {
+  rotate = glm::rotate(glm::radians(deg), glm::vec3(x, y, z)) * rotate;
 }
 
 void Camera::attach_to_shader(ShaderProgram &program, const char *symbol) {
-  u_rotation = glGetUniformLocation(program, symbol); GLERROR
+  u_camera = glGetUniformLocation(program, symbol); GLERROR
 }
 
 void Camera::update_uniform() {
-  glUniform4f(u_rotation, rotation.x, rotation.y, rotation.z, rotation.a); GLERROR
-  /* glUniform4fv(u_rotation_vbo, glm::value_ptr(rotation)); GLERROR */
+  glUniformMatrix4fvARB(u_camera, 1 , GL_FALSE, glm::value_ptr(rotate)); GLERROR
 }
