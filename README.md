@@ -4,7 +4,7 @@
 
 ## Screenshots
 
-![DEMO](./screenshots/rubiks1.png)
+![DEMO](./screenshots/rubiks2.png)
 
 ## Author
 

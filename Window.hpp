@@ -106,7 +106,7 @@ public:
   }
 
   void keyboard() {
-    const float deg = 1.5;
+    const float deg = 0.5;
     if(glfwGetKey(win_, GLFW_KEY_ESCAPE)) {
       glfwSetWindowShouldClose(win_, 1); GLERROR
     } else if(glfwGetKey(win_, GLFW_KEY_W)) {
