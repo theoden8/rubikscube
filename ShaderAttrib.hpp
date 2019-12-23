@@ -156,7 +156,7 @@ struct Attrib {
   template <typename VecT>
   void show_transformation(Transformation &t, std::vector<float> &&points) {
     size_t no_prims = points.size() / numberOfElementsPerPrimitive;
-    for(int i = 0; i < no_prims; ++i) {
+    for(size_t i = 0; i < no_prims; ++i) {
       VecT v;
       Logger::Info("primitive %d (", i);
       for(int j = 0; j < numberOfElementsPerPrimitive; ++j) {

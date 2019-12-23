@@ -55,7 +55,7 @@ struct VertexArray {
   void draw(size_t start=0, size_t no_primitives=SIZE_MAX) {
     this->bind();
     if(no_primitives == SIZE_MAX) {
-      int maxprimitives = 0;
+      size_t maxprimitives = 0;
       Tuple::for_each(attributes, [&](const auto &attr) mutable -> void {
         if(attr.numberOfPrimitives > maxprimitives) {
           maxprimitives = attr.numberOfPrimitives;
@@ -88,7 +88,7 @@ struct VertexArray {
     glBindVertexArray(0); GLERROR
   }
 
-  static void clear_identified(GLuint &vao) {
+  static void clear(GLuint &vao) {
     glDeleteVertexArrays(1, &vao); GLERROR
   }
 
@@ -97,10 +97,7 @@ struct VertexArray {
   }
 
   void clear() {
-    Tuple::for_each(attributes, [&](auto &attrib) mutable -> void {
-      attrib.clear();
-    });
-    clear_identified(vaoId);
+    clear(vaoId);
   }
 };
 

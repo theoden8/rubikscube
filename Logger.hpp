@@ -1,9 +1,8 @@
 #pragma once
 
 #include <cstdarg>
-#include <string>
 #include <cstdlib>
-
+#include <string>
 #include <mutex>
 
 #include <File.hpp>
@@ -86,7 +85,7 @@ public:
     va_end(argptr);
   }
   static void MirrorLog(FILE *redir) {
-    #ifdef __unix__
+    #if defined(_POSIX_VERSION)
     ASSERT(instance != nullptr);
     if(instance->file == nullptr) {
       return;

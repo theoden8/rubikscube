@@ -8,6 +8,7 @@
 #include <ShaderAttrib.hpp>
 #include <ShaderUniform.hpp>
 
+#include <Quad.hpp>
 #include <Transformation.hpp>
 #include <Camera.hpp>
 
@@ -40,7 +41,7 @@ class Facing {
   Transformation cubeTransform;
   glm::mat4 matrix;
   int highlight = 0;
-  std::array<Face, 3> face_types;
+  const std::array<Face, 3> face_types;
   std::list<glm::vec3> colors;
 
   using ShaderProgram = gl::ShaderProgram<
@@ -65,30 +66,30 @@ class Facing {
 
 public:
   const std::vector<float>
-      x_front = {
-        0,0,1, 0,1,0, 0,1,1,
-        0,1,0, 0,0,0, 0,0,1,
-      },
-      x_back = {
-        1,0,1, 1,1,0, 1,1,1,
-        1,1,0, 1,0,0, 1,0,1,
-      },
-      y_front = {
-        0,0,1, 1,0,0, 1,0,1,
-        1,0,0, 0,0,0, 0,0,1,
-      },
-      y_back = {
-        0,1,1, 1,1,0, 1,1,1,
-        1,1,0, 0,1,0, 0,1,1,
-      },
-      z_front = {
-        0,1,0, 1,0,0, 1,1,0,
-        1,0,0, 0,0,0, 0,1,0,
-      },
-      z_back = {
-        0,1,1, 1,0,1, 1,1,1,
-        1,0,1, 0,0,1, 0,1,1,
-      };
+    x_front = {
+      0,0,1, 0,1,0, 0,1,1,
+      0,1,0, 0,0,0, 0,0,1,
+    },
+    x_back = {
+      1,0,1, 1,1,0, 1,1,1,
+      1,1,0, 1,0,0, 1,0,1,
+    },
+    y_front = {
+      0,0,1, 1,0,0, 1,0,1,
+      1,0,0, 0,0,0, 0,0,1,
+    },
+    y_back = {
+      0,1,1, 1,1,0, 1,1,1,
+      1,1,0, 0,1,0, 0,1,1,
+    },
+    z_front = {
+      0,1,0, 1,0,0, 1,1,0,
+      1,0,0, 0,0,0, 0,1,0,
+    },
+    z_back = {
+      0,1,1, 1,0,1, 1,1,1,
+      1,0,1, 0,0,1, 0,1,1,
+    };
 
   Facing(Camera &cam, const std::array<Face, 3> &face_types, float scale=1., glm::vec3 position=glm::vec3(0,0,0)):
     face_types(face_types),
@@ -107,26 +108,17 @@ public:
   }
 
   bool has_face(Face f) {
-    switch(f) {
-      case Face::X_FRONT:return face_types[0]==f;break;
-      case Face::X_BACK :return face_types[0]==f;break;
-      case Face::Y_FRONT:return face_types[1]==f;break;
-      case Face::Y_BACK :return face_types[1]==f;break;
-      case Face::Z_FRONT:return face_types[2]==f;break;
-      case Face::Z_BACK :return face_types[2]==f;break;
-      default:break;
-    }
-    return false;
+    return face_types[0] == f || face_types[1] == f || face_types[2] == f;
   }
 
   template <typename F>
-  void iterate_point_sets(F &&func) {
-    if(has_face(Face::X_FRONT))func(x_front);
-    if(has_face(Face::X_BACK)) func(x_back);
-    if(has_face(Face::Y_FRONT))func(y_front);
-    if(has_face(Face::Y_BACK)) func(y_back);
-    if(has_face(Face::Z_FRONT))func(z_front);
-    if(has_face(Face::Z_BACK)) func(z_back);
+  void iterate_face_attributes(Quad &quad, F &&func) {
+    if(has_face(Face::X_FRONT))func(quad.vpos_xf);
+    if(has_face(Face::X_BACK)) func(quad.vpos_xb);
+    if(has_face(Face::Y_FRONT))func(quad.vpos_yf);
+    if(has_face(Face::Y_BACK)) func(quad.vpos_yb);
+    if(has_face(Face::Z_FRONT))func(quad.vpos_zf);
+    if(has_face(Face::Z_BACK)) func(quad.vpos_zb);
   }
 
   int no_faces() {
@@ -138,14 +130,15 @@ public:
   }
 
 
-  void init() {
-    iterate_point_sets([&](const std::vector<float> &points) mutable -> void {
+  void init(Quad &quad) {
+    iterate_face_attributes(quad, [&](auto attr) mutable -> void {
       Logger::Info("  face\n");
       colors.push_back(glm::vec3(1,1,1));
 
-      a_position.push_back(ShaderAttrib("vposition"));
+      a_position.push_back(attr);
       auto &current_a_position = a_position.back();
-      current_a_position.allocate<GL_STATIC_DRAW>(points);
+      /* ShaderAttrib::init(current_a_position); */
+      /* current_a_position.allocate<GL_STATIC_DRAW>(points); */
 
       vao.push_back(VertexArray(current_a_position));
       auto &current_vao = vao.back();
@@ -180,6 +173,11 @@ public:
     });
   }
 
+  float depth = 0.5;
+  void update_depth() {
+    depth = (matrix * glm::vec4(.5, .5, .5, 1.)).y;
+  }
+
   void update_uniforms(int id) {
     if(transform.has_changed || cubeTransform.has_changed || cam.has_changed()) {
       matrix = cam.get_matrix() * cubeTransform.get_matrix() * transform.get_matrix();
@@ -189,13 +187,38 @@ public:
     get(u_color, id).set_data(get(colors, id));
   }
 
+  static std::string face_to_string(const Face &f) {
+    switch(f) {
+      case Face::NFACE:return "nface";
+      case Face::X_FRONT:return "x_front";
+      case Face::X_BACK: return "x_back";
+      case Face::Y_FRONT:return "y_front";
+      case Face::Y_BACK: return "y_back";
+      case Face::Z_FRONT:return "z_front";
+      case Face::Z_BACK: return "z_back";
+    }
+    TERMINATE("no such face");
+  }
+
+  std::string str() {
+    std::vector<char> buf(1000);
+    sprintf(buf.data(), "facing (%s %s %s)",
+      face_to_string(face_types[0]).c_str(),
+      face_to_string(face_types[1]).c_str(),
+      face_to_string(face_types[2]).c_str()
+      );
+    return std::string(buf.begin(), buf.end());
+  }
+
   int face_to_index(Face &f) {
     int q = 0;
-    if(f == Face::X_FRONT || f == Face::X_BACK)return q;
-    if(face_types[0] != Face::NFACE)++q;
-    if(f == Face::Y_FRONT || f == Face::Y_BACK)return q;
-    if(face_types[1] != Face::NFACE)++q;
-    if(f == Face::Z_FRONT || f == Face::Z_BACK)return q;
+    for(auto &ft : face_types) {
+      if(ft == f) {
+        return q;
+      } else if(ft != Face::NFACE) {
+        ++q;
+      }
+    }
     return -1;
   }
 
@@ -213,6 +236,7 @@ public:
 
   void draw() {
     for(int i = 0; i < prog.size(); ++i) {
+
       ShaderProgram::use(get(prog, i));
       update_uniforms(i);
       VertexArray::draw<GL_TRIANGLES>(get(vao, i));

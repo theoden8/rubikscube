@@ -2,17 +2,17 @@
 
 uniform mat4 transform;
 uniform int highlight;
+uniform vec3 color;
 
 layout (location = 0) in vec3 vposition;
-layout (location = 1) in vec3 vcolor;
 
 out vec3 gcolor;
 out float gshade;
 
 void main() {
-  gcolor = vcolor;
+  gcolor = color;
   if(highlight == 0) {
-    gshade = 0.8;
+    gshade = 0.6;
   } else {
     gshade = 1.0;
   }
