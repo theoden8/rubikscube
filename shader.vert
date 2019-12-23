@@ -11,10 +11,9 @@ out float gshade;
 
 void main() {
   gcolor = color;
-  if(highlight == 0) {
-    gshade = 0.6;
-  } else {
-    gshade = 1.0;
-  }
   gl_Position = transform * (vec4(vposition, 1) - 0.5);
+  gshade = 1. - gl_Position.y;
+  if(highlight == 0) {
+    gshade *= 0.7;
+  }
 }

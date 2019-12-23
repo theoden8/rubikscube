@@ -6,6 +6,7 @@
 #include <Debug.hpp>
 
 #include <Quad.hpp>
+#include <Box.hpp>
 #include <Facing.hpp>
 #include <Rubiks.hpp>
 
@@ -19,7 +20,7 @@ struct RubiksCube {
     YELLOW = glm::vec3(1, .8, .236),
     PINK = glm::vec3(1, .2, .5),
     CYAN = glm::vec3(.2, 1, 1),
-    GRAY = glm::vec3(.4, .4, .4),
+    GRAY = glm::vec3(.8, .8, .8),
     BLACK = glm::vec3(0, 0, 0);
 
   using RubiksT = Rubiks<N>;
@@ -27,15 +28,18 @@ struct RubiksCube {
   Camera &cam;
 
   Quad quad;
+  Box insideBox;
   std::vector<Facing> facings;
 
   RubiksCube(Camera &cam):
     cam(cam),
+    insideBox(cam, GRAY, .5),
     quad("vposition"s)
   {
     facings.reserve(RubiksT::number_of_boxes);
-    const float step = .5 / N;
-    const float scale = 0.95 * step;
+    const float totalsize = .7;
+    const float step = totalsize / (N - 1);
+    const float scale = 0.48 * step;
 
     for(int i = 0; i < N; ++i) {
       bool i_edge = (i == 0 || i == N - 1);
@@ -51,7 +55,7 @@ struct RubiksCube {
           if(j_edge)face_types[1] = (j == 0) ? Face::Y_FRONT : Face::Y_BACK;
           if(k_edge)face_types[2] = (k == 0) ? Face::Z_FRONT : Face::Z_BACK;
 
-          glm::vec3 position = glm::vec3(float(i), float(j), float(k)) / float(N) - .25f;
+          glm::vec3 position = glm::vec3(step * i, step * j, step * k) - totalsize / 2;
           facings.push_back(Facing(cam, face_types, scale, position));
         }
       }
@@ -91,6 +95,7 @@ struct RubiksCube {
   Face activeFace = Face::Z_BACK;
   void init() {
     quad.init();
+    insideBox.init();
     for(auto &f : facings) {
       Logger::Info("%s\n", f.str().c_str());
       f.init(quad);
@@ -120,12 +125,14 @@ struct RubiksCube {
       lastActiveFace = activeFace;
       set_highlight(activeFace);
     }
+    insideBox.draw();
     for(auto &f : facings) {
       f.draw();
     }
   }
 
   void clear() {
+    insideBox.clear();
     for(auto &f : facings) {
       f.clear();
     }
