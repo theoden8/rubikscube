@@ -1,6 +1,7 @@
-build
+build*
 *.trace
 *.log
 rubik
 rubik.dSYM
 rubik.log
+unused

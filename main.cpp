@@ -4,6 +4,7 @@
 #include <cassert>
 #include <string>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -11,6 +12,5 @@
 
 int main(int argc, char *argv[]) {
   Window w(960, 960);
-  w.gl_version();
-  w.idle();
+  w.run();
 }

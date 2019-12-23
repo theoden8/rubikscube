@@ -2,9 +2,9 @@
 
 uniform mat4 transform;
 uniform int highlight;
+uniform vec3 vcolor;
 
 layout (location = 0) in vec3 vposition;
-layout (location = 1) in vec3 vcolor;
 
 out vec3 gcolor;
 out float gshade;

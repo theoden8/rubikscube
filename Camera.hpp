@@ -1,17 +1,30 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "Shader.hpp"
+#include <Logger.hpp>
+
+#include <Transformation.hpp>
 
 class Camera {
-  GLuint u_camera = 0;
+  Transformation transform;
+
 public:
-  glm::mat4 rotate;
-  Camera();
-  ~Camera();
-  operator GLuint() const;
-  void Rotate(float x, float y, float z, float deg);
-  void attach_to_shader(ShaderProgram &program, const char *symbol);
-  void update_uniform();
+  Camera()
+  {}
+
+  void rotate(float x, float y, float z, float deg) {
+    transform.Rotate(x, y, z, deg);
+  }
+
+  bool has_changed() {
+    return transform.has_changed;
+  }
+
+  glm::mat4 get_matrix() {
+    return transform.get_matrix();;
+  }
 };
