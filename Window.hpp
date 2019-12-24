@@ -48,7 +48,7 @@ class Window {
   void init_controls() {
     // ensure we can capture the escape key
     glfwSetInputMode(win_, GLFW_STICKY_KEYS, GL_TRUE); GLERROR
-    glfwSetInputMode(win_, GLFW_CURSOR, GLFW_CURSOR_DISABLED); GLERROR
+    /* glfwSetInputMode(win_, GLFW_CURSOR, GLFW_CURSOR_DISABLED); GLERROR */
   }
   void gl_version() {
     // get version info
@@ -128,6 +128,12 @@ public:
     if(action == GLFW_PRESS) {
       if(key == GLFW_KEY_SPACE) {
         rb.flip_active_face();
+      } else if(key == GLFW_KEY_TAB) {
+        rb.swap_selected_faces();
+      } else if(key == GLFW_KEY_LEFT) {
+        rb.set_previous_active_face();
+      } else if(key == GLFW_KEY_RIGHT) {
+        rb.set_next_active_face();
       }
     }
   }

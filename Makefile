@@ -2,7 +2,9 @@ UNAME = $(shell uname)
 ARCH = $(shell uname -m)
 
 CXX = clang++
-CXXFLAGS = -std=c++17 -g2 $(shell pkg-config --cflags glm epoxy glfw3) -I. -Wall -Wextra
+# OPTFLAGS = -g3
+OPTFLAGS = -Ofast -march=native
+CXXFLAGS = -std=c++17 $(OPTFLAGS) $(shell pkg-config --cflags glm epoxy glfw3) -I. -Wall -Wextra
 LDFLAGS = $(shell pkg-config --libs glm epoxy glfw3)
 OBJECTS = $(wildcard *.cpp)
 BINARY = rubik

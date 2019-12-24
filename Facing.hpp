@@ -21,8 +21,18 @@ enum class Face {
   Y_FRONT,
   Y_BACK ,
   X_FRONT,
-  X_BACK ,
+  X_BACK
 };
+
+bool is_opposite_face(Face a, Face b) {
+  return
+    (a == Face::Z_FRONT && b == Face::Z_BACK)
+    || (a == Face::Z_BACK && b == Face::Z_FRONT)
+    || (a == Face::Y_FRONT && b == Face::Y_BACK)
+    || (a == Face::Y_BACK && b == Face::Y_FRONT)
+    || (a == Face::X_FRONT && b == Face::X_BACK)
+    || (a == Face::X_BACK && b == Face::X_FRONT);
+}
 
 
 template <typename T>
@@ -41,7 +51,9 @@ class Facing {
   Transformation cubeTransform;
   glm::mat4 matrix;
   int highlight = 0;
+public:
   const std::array<Face, 3> face_types;
+private:
   std::list<glm::vec3> colors;
 
   using ShaderProgram = gl::ShaderProgram<
@@ -121,12 +133,17 @@ public:
     if(has_face(Face::Z_BACK)) func(quad.vpos_zb);
   }
 
+  int faceCount = -1;
   int no_faces() {
+    if(faceCount!=1)return faceCount;
     int q = 0;
-    if(face_types[0] != Face::NFACE)++q;
-    if(face_types[1] != Face::NFACE)++q;
-    if(face_types[2] != Face::NFACE)++q;
-    return q;
+    for(auto &f : face_types) {
+      if(f != Face::NFACE) {
+        ++q;
+      }
+    }
+    faceCount = q;
+    return faceCount;
   }
 
 
@@ -175,7 +192,7 @@ public:
 
   float depth = 0.5;
   void update_depth() {
-    depth = (matrix * glm::vec4(.5, .5, .5, 1.)).y;
+    depth = (matrix * glm::vec4(.5, .5, .5, 1.)).x;
   }
 
   void update_uniforms(int id) {
@@ -235,8 +252,8 @@ public:
   }
 
   void draw() {
+    update_depth();
     for(int i = 0; i < prog.size(); ++i) {
-
       ShaderProgram::use(get(prog, i));
       update_uniforms(i);
       VertexArray::draw<GL_TRIANGLES>(get(vao, i));

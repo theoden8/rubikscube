@@ -15,5 +15,9 @@ void main() {
   gshade = 1. - gl_Position.y;
   if(highlight == 0) {
     gshade *= 0.7;
+  } else if(highlight == 1) {
+    gshade *= 1.;
+  } else if(highlight == 2) {
+    gshade *= .85;
   }
 }

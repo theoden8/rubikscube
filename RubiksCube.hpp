@@ -73,16 +73,27 @@ struct RubiksCube {
     }
   }
 
-  void set_highlight(Face face) {
+  void set_highlight(Face face, int value=1) {
     select_face(face, [&](glm::vec3 &c, Transformation &t, int &h) mutable -> void {
-      h = 1;
+      h = value;
     });
   }
 
   void unset_highlight(Face face) {
+    set_highlight(face, 0);
+  }
+
+  void set_secondary_highlight(Face face, int value) {
+    if(face == Face::NFACE)return;
     select_face(face, [&](glm::vec3 &c, Transformation &t, int &h) mutable -> void {
-      h = 0;
+      if(h != 1) {
+        h = value;
+      }
     });
+  }
+
+  void unset_secondary_highlight(Face face) {
+    set_secondary_highlight(face, 0);
   }
 
   void set_color(Face face, glm::vec3 color) {
@@ -91,8 +102,11 @@ struct RubiksCube {
     });
   }
 
+  int activeFaceId = -1;
+  std::vector<Face> activeFaceTimeline;
   Face lastActiveFace = Face::NFACE;
-  Face activeFace = Face::Z_BACK;
+  Face lastNearest = Face::NFACE;
+  Face nearestFace = Face::NFACE;
   void init() {
     quad.init();
     insideBox.init();
@@ -106,25 +120,92 @@ struct RubiksCube {
     set_color(Face::Y_BACK,  RED);
     set_color(Face::Z_FRONT, BLUE);
     set_color(Face::Z_BACK,  GREEN);
+
+    set_new_active_face(Face::X_FRONT);
+  }
+
+  Face activeFace() {
+    return activeFaceTimeline[activeFaceId];
+  }
+
+  void set_new_active_face(Face f) {
+    if(activeFaceId >= 0) {
+      activeFaceTimeline.resize(activeFaceId + 1);
+    }
+    activeFaceTimeline.push_back(f);
+    set_next_active_face();
   }
 
   void flip_active_face() {
-    switch(activeFace) {
-      case Face::X_FRONT:activeFace=Face::X_BACK;break;
-      case Face::X_BACK:activeFace=Face::X_FRONT;break;
-      case Face::Y_FRONT:activeFace=Face::Y_BACK;break;
-      case Face::Y_BACK:activeFace=Face::Y_FRONT;break;
-      case Face::Z_FRONT:activeFace=Face::Z_BACK;break;
-      case Face::Z_BACK:activeFace=Face::Z_FRONT;break;
+    Face f;
+    switch(activeFace()) {
+      case Face::X_FRONT:f=Face::X_BACK;break;
+      case Face::X_BACK:f=Face::X_FRONT;break;
+      case Face::Y_FRONT:f=Face::Y_BACK;break;
+      case Face::Y_BACK:f=Face::Y_FRONT;break;
+      case Face::Z_FRONT:f=Face::Z_BACK;break;
+      case Face::Z_BACK:f=Face::Z_FRONT;break;
+    }
+    set_new_active_face(f);
+  }
+
+  void swap_selected_faces() {
+    set_new_active_face(nearestFace);
+  }
+
+  void set_previous_active_face() {
+    if(activeFaceId > 0) {
+      --activeFaceId;
+    }
+  }
+
+  void set_next_active_face() {
+    if(activeFaceId != activeFaceTimeline.size() - 1) {
+      ++activeFaceId;
+    }
+  }
+
+  Face find_nearest_face() {
+    Face nearest = Face::NFACE;
+    float mindepth = 1e9;
+    for(auto &f : facings) {
+      if(f.no_faces() > 1)continue;
+      if(f.depth < mindepth) {
+        for(auto &face : f.face_types)if(face!=Face::NFACE){
+          if(!is_opposite_face(face, activeFace()) && !(face == activeFace())) {
+            nearest = face, mindepth = f.depth;
+          }
+          break;
+        }
+      }
+    }
+    return nearest;
+  }
+
+  bool changed_selection = false;
+  void set_selection() {
+    if(lastActiveFace != activeFace()) {
+      unset_highlight(lastActiveFace);
+      lastActiveFace = activeFace();
+      set_highlight(activeFace());
+      changed_selection = true;
+    }
+  }
+
+  void set_nearest() {
+    nearestFace = find_nearest_face();
+    ASSERT(nearestFace != Face::NFACE);
+    if(nearestFace != lastNearest || changed_selection) {
+      unset_secondary_highlight(lastNearest);
+      set_secondary_highlight(nearestFace, 2);
+      lastNearest = nearestFace;
+      changed_selection = false;
     }
   }
 
   void draw() {
-    if(lastActiveFace != activeFace) {
-      unset_highlight(lastActiveFace);
-      lastActiveFace = activeFace;
-      set_highlight(activeFace);
-    }
+    set_selection();
+    set_nearest();
     insideBox.draw();
     for(auto &f : facings) {
       f.draw();
