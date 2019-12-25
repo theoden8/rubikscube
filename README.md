@@ -2,13 +2,7 @@
 
 ![picture](./_Icon.gif)
 
-## Screenshots
-
-![DEMO](./screenshots/rubiks2.png)
-
-## Author
-
-Created by Kirill Rodriguez in January 2017.
+![DEMO](./screenshots/rubiks.gif)
 
 ## Built with
 

@@ -50,9 +50,9 @@ public:
     vpos_yb(vpos_name),
     vpos_zf(vpos_name),
     vpos_zb(vpos_name),
-    vshader(dir + "shader.vert"),
-    gshader(dir + "shader.geom"),
-    fshader(dir + "shader.frag")
+    vshader(dir + "shaders/shader.vert"),
+    gshader(dir + "shaders/shader.geom"),
+    fshader(dir + "shaders/shader.frag")
   {}
 
   void init() {

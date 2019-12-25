@@ -2,24 +2,34 @@
 
 
 #include <ShaderAttrib.hpp>
+#include <ShaderUniform.hpp>
 #include <Shader.hpp>
+#include <ShaderProgram.hpp>
 
 
 class BoxCommon {
 public:
-  gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3> a_position;
 
-  using ShaderAttrib = decltype(a_position);
+  using ShaderAttrib = gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3>;
+  using VertexArray = gl::VertexArray<ShaderAttrib>;
+  using ShaderProgram = gl::ShaderProgram<
+    gl::VertexShader,
+    gl::GeometryShader,
+    gl::FragmentShader
+  >;
 
-  gl::VertexShader vshader;
-  gl::GeometryShader gshader;
-  gl::FragmentShader fshader;
+  ShaderProgram program;
+  ShaderAttrib a_position;
+  VertexArray vao;
 
   BoxCommon(std::string vpos_name, const std::string &dir):
+    program({
+      dir + "shaders/shader.vert",
+      dir + "shaders/shader.geom" ,
+      dir + "shaders/shader.frag"
+    }),
     a_position(vpos_name),
-    vshader(dir + "shader.vert"),
-    gshader(dir + "shader.geom"),
-    fshader(dir + "shader.frag")
+    vao(a_position)
   {}
 
   void init() {
@@ -47,18 +57,22 @@ public:
       1,0,1, 0,0,1, 0,1,1,
     });
 
-    gl::VertexShader::init(vshader);
-    gl::GeometryShader::init(gshader);
-    gl::FragmentShader::init(fshader);
-  }
+    VertexArray::init(vao);
+    VertexArray::bind(vao);
 
-  void finish_init() {
-    gl::VertexShader::clear(vshader);
-    gl::GeometryShader::clear(gshader);
-    gl::FragmentShader::clear(fshader);
+    a_position.set_access(0, 0);
+
+    // enable all attributes
+    vao.enable(a_position);
+
+    ShaderProgram::init(program, vao);
+
+    VertexArray::unbind();
   }
 
   void clear() {
     ShaderAttrib::clear(a_position);
+    VertexArray::clear(vao);
+    ShaderProgram::clear(program);
   }
 };

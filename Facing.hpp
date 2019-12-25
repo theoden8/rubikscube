@@ -49,12 +49,10 @@ private:
   std::list<ShaderProgram> prog;
   std::list<ShaderAttrib> a_position;
   std::list<VertexArray> vao;
-  using UniformInt = gl::Uniform<gl::UniformType::INTEGER>;
-  using UniformVec3 = gl::Uniform<gl::UniformType::VEC3>;
-  using UniformMat4 = gl::Uniform<gl::UniformType::MAT4>;
-  std::list<UniformInt> u_highlight;
-  std::list<UniformVec3> u_color;
-  std::list<UniformMat4> u_transform;
+
+  gl::Uniform<gl::UniformType::INTEGER> u_highlight;
+  gl::Uniform<gl::UniformType::VEC3> u_color;
+  gl::Uniform<gl::UniformType::MAT4> u_transform;
 
   Box box;
   QuadCommon &quadcommon;
@@ -70,16 +68,12 @@ public:
   ):
     face_types(face_types),
     quadcommon(quadcommon),
+    u_highlight("highlight"),
+    u_color("color"),
+    u_transform("transform"),
     box(boxcommon, cam, glm::vec3(0, 0, 0)),
     cam(cam)
   {
-    /* prog.reserve(3); */
-    /* a_position.reserve(3); */
-    /* vao.reserve(3); */
-    /* u_highlight.reserve(3); */
-    /* u_color.reserve(3); */
-    /* u_transform.reserve(3); */
-
     transform.SetScale(scale);
     transform.SetPosition(position);
     box.transform = transform;
@@ -142,26 +136,19 @@ public:
 
       ShaderProgram::init(current_prog, current_vao);
 
-      u_highlight.push_back(UniformInt("highlight"));
-      auto &current_u_highlight = u_highlight.back();
-      current_u_highlight.set_id(current_prog.id());
-
-      u_color.push_back(UniformVec3("color"));
-      auto &current_u_color = u_color.back();
-      current_u_color.set_id(current_prog.id());
-
-      u_transform.push_back(UniformMat4("transform"));
-      auto &current_u_transform = u_transform.back();
-      current_u_transform.set_id(current_prog.id());
     });
   }
 
   void update_uniforms(int id) {
+    auto programid = get(prog, id).id();
     if(transform.has_changed || cubeTransform.has_changed || cam.has_changed) {
-      get(u_transform, id).set_data(matrix);
+      u_transform.set_id(programid);
+      u_transform.set_data(matrix);
     }
-    get(u_highlight, id).set_data(highlight);
-    get(u_color, id).set_data(get(colors, id));
+    u_highlight.set_id(programid);
+    u_highlight.set_data(highlight);
+    u_color.set_id(programid);
+    u_color.set_data(get(colors, id));
   }
 
 public:

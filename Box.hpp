@@ -18,22 +18,17 @@ class Box {
 public:
   Transformation transform;
 
-  using ShaderProgram = gl::ShaderProgram<
-    gl::VertexShader,
-    gl::GeometryShader,
-    gl::FragmentShader
-  >;
-  using ShaderAttrib = gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3>;
-  using VertexArray = gl::VertexArray<ShaderAttrib>;
+  using ShaderAttrib = BoxCommon::ShaderAttrib;
+  using VertexArray = BoxCommon::VertexArray;
+  using ShaderProgram = BoxCommon::ShaderProgram;
 
 private:
   glm::mat4 matrix;
   int highlight = 1;
   glm::vec3 color;
 
-  ShaderProgram prog;
-  ShaderAttrib &a_position;
-  VertexArray vao;
+  ShaderProgram &prog;
+  VertexArray &vao;
 
   gl::Uniform<gl::UniformType::INTEGER> u_highlight;
   gl::Uniform<gl::UniformType::VEC3> u_color;
@@ -44,9 +39,8 @@ private:
 
 public:
   Box(BoxCommon &boxcommon, Camera &cam, const glm::vec3 &color, float scale=1.):
-    prog(boxcommon.vshader, boxcommon.gshader, boxcommon.fshader),
-    a_position(boxcommon.a_position),
-    vao(a_position),
+    prog(boxcommon.program),
+    vao(boxcommon.vao),
     u_transform("transform"),
     u_highlight("highlight"),
     u_color("color"),
@@ -59,20 +53,9 @@ public:
   }
 
   void init() {
-    VertexArray::init(vao);
-    VertexArray::bind(vao);
-
-    // enable all attributes
-    vao.enable(a_position);
-
-    a_position.set_access(0, 0);
-
-    ShaderProgram::init(prog, vao);
     u_transform.set_id(prog.id());
     u_highlight.set_id(prog.id());
     u_color.set_id(prog.id());
-
-    VertexArray::unbind();
   }
 
   template <typename... Ts>
@@ -103,7 +86,5 @@ public:
   }
 
   void clear() {
-    VertexArray::clear(vao);
-    ShaderProgram::clear(prog);
   }
 };

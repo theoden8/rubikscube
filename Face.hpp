@@ -96,6 +96,7 @@ Face map_face_rotation(const Face face, const Rotation rot, const Face axis_face
         {Face::Y_FRONT, Face::Z_FRONT, Face::Y_BACK, Face::Z_BACK},
       };
     break;
+    case Face::NFACE:TERMINATE("shouldn't reach here");
   }
   const bool hit_inverse = (
     axis_back && rot == Rotation::CLOCKWISE)

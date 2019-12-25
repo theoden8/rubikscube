@@ -123,7 +123,6 @@ struct RubiksCube {
       f.init();
     }
     quadcommon.finish_init();
-    boxcommon.finish_init();
 
     set_color(Face::X_FRONT, WHITE);
     set_color(Face::X_BACK,  YELLOW);
@@ -148,7 +147,7 @@ struct RubiksCube {
   }
 
   void flip_active_face() {
-    Face f;
+    Face f = Face::NFACE;
     switch(activeFace()) {
       case Face::X_FRONT:f=Face::X_BACK;break;
       case Face::X_BACK:f=Face::X_FRONT;break;
