@@ -10,19 +10,13 @@
 #include <Transformation.hpp>
 
 class Camera {
-  Transformation transform;
-
 public:
-  Camera()
+  Transformation transform;
+  bool &has_changed;
+
+  Camera():
+    has_changed(transform.has_changed)
   {}
-
-  void rotate(float x, float y, float z, float deg) {
-    transform.Rotate(x, y, z, deg);
-  }
-
-  bool has_changed() {
-    return transform.has_changed;
-  }
 
   glm::mat4 get_matrix() {
     return transform.get_matrix();;

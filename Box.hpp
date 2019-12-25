@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include <glm/glm.hpp>
 
 #include <ShaderProgram.hpp>
@@ -13,80 +15,50 @@ using namespace std::literals::string_literals;
 
 
 class Box {
+public:
   Transformation transform;
+
+  using ShaderProgram = gl::ShaderProgram<
+    gl::VertexShader,
+    gl::GeometryShader,
+    gl::FragmentShader
+  >;
+  using ShaderAttrib = gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3>;
+  using VertexArray = gl::VertexArray<ShaderAttrib>;
+
+private:
   glm::mat4 matrix;
   int highlight = 1;
   glm::vec3 color;
 
-  gl::ShaderProgram<
-    gl::VertexShader,
-    gl::GeometryShader,
-    gl::FragmentShader
-  > prog;
-  gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3> a_position;
-  gl::VertexArray<
-    decltype(a_position)
-  > vao;
+  ShaderProgram prog;
+  ShaderAttrib &a_position;
+  VertexArray vao;
+
   gl::Uniform<gl::UniformType::INTEGER> u_highlight;
   gl::Uniform<gl::UniformType::VEC3> u_color;
   gl::Uniform<gl::UniformType::MAT4> u_transform;
 
   Camera &cam;
+  BoxCommon &boxcommon;
 
 public:
-
-  using ShaderProgram = decltype(prog);
-  using ShaderAttrib = decltype(a_position);
-  using VertexArray = decltype(vao);
-
-  Box(Camera &cam, const glm::vec3 &color, float scale=1.):
-    prog({
-      "shader.vert"s,
-      "shader.geom"s,
-      "shader.frag"s
-    }),
-    a_position("vposition"),
+  Box(BoxCommon &boxcommon, Camera &cam, const glm::vec3 &color, float scale=1.):
+    prog(boxcommon.vshader, boxcommon.gshader, boxcommon.fshader),
+    a_position(boxcommon.a_position),
     vao(a_position),
     u_transform("transform"),
     u_highlight("highlight"),
     u_color("color"),
     color(color),
-    cam(cam)
+    cam(cam),
+    boxcommon(boxcommon)
   {
     transform.SetScale(scale);
     transform.SetPosition(0, 0, 0);
-    /* transform.SetRotation(1, 0, 0, 180.f); */
   }
 
   void init() {
-    ShaderAttrib::init(a_position);
-
-    a_position.allocate<GL_STATIC_DRAW>(std::vector<GLfloat>{
-      /* 1,1, -1,1, -1,-1, */
-      /* -1,-1, 1,1, 1,-1, */
-
-      // x fixed
-      0,0,1, 0,1,0, 0,1,1,
-      0,1,0, 0,0,0, 0,0,1,
-
-      1,0,1, 1,1,0, 1,1,1,
-      1,1,0, 1,0,0, 1,0,1,
-
-      // y fixed
-      0,0,1, 1,0,0, 1,0,1,
-      1,0,0, 0,0,0, 0,0,1,
-
-      0,1,1, 1,1,0, 1,1,1,
-      1,1,0, 0,1,0, 0,1,1,
-
-      // z fixed
-      0,1,0, 1,0,0, 1,1,0,
-      1,0,0, 0,0,0, 0,1,0,
-
-      0,1,1, 1,0,1, 1,1,1,
-      1,0,1, 0,0,1, 0,1,1,
-    });
-
     VertexArray::init(vao);
     VertexArray::bind(vao);
 
@@ -103,24 +75,34 @@ public:
     VertexArray::unbind();
   }
 
-  void update_uniforms() {
-    if(transform.has_changed || cam.has_changed()) {
-      matrix = cam.get_matrix() * transform.get_matrix();
+  template <typename... Ts>
+  void update_uniforms(std::tuple<const Ts&... >transforms) {
+    bool changed = transform.has_changed || cam.has_changed;
+    Tuple::for_each(transforms, [&](auto &t) mutable -> void {
+      changed = changed || t.has_changed;
+    });
+    if(changed) {
+      matrix = cam.get_matrix();
+      Tuple::for_each(transforms, [&](auto &t) mutable -> void {
+        matrix *= t.get_matrix();
+      });
+      matrix *= transform.get_matrix();
       u_transform.set_data(matrix);
       u_highlight.set_data(highlight);
       u_color.set_data(color);
+      transform.has_changed = false;
     }
   }
 
-  void draw() {
+  template <typename... TransformTs>
+  void draw(const TransformTs&... transforms) {
     ShaderProgram::use(prog);
-    update_uniforms();
+    update_uniforms(std::tie(transforms...));
     VertexArray::draw<GL_TRIANGLES>(vao);
     ShaderProgram::unuse();
   }
 
   void clear() {
-    ShaderAttrib::clear(a_position);
     VertexArray::clear(vao);
     ShaderProgram::clear(prog);
   }

@@ -60,12 +60,12 @@ class Window {
 
 public:
   Camera camera;
-  RubiksCube rb;
+  RubiksCube<3> rb;
 
-  Window(size_t width, size_t height):
+  Window(size_t width, size_t height, const std::string &dir):
     width(width), height(height),
     camera(),
-    rb(camera)
+    rb(camera, dir)
   {
     Logger::Setup("rubik.log");
     Logger::MirrorLog(stderr);
@@ -110,17 +110,17 @@ public:
     if(glfwGetKey(win_, GLFW_KEY_ESCAPE)) {
       glfwSetWindowShouldClose(win_, 1); GLERROR
     } else if(glfwGetKey(win_, GLFW_KEY_W)) {
-      camera.rotate(1, 0, 0, deg);
+      camera.transform.Rotate(1, 0, 0, deg);
     } else if(glfwGetKey(win_, GLFW_KEY_S)) {
-      camera.rotate(1, 0, 0, -deg);
+      camera.transform.Rotate(1, 0, 0, -deg);
     } else if(glfwGetKey(win_, GLFW_KEY_A)) {
-      camera.rotate(0, 1, 0, deg);
+      camera.transform.Rotate(0, 1, 0, deg);
     } else if(glfwGetKey(win_, GLFW_KEY_D)) {
-      camera.rotate(0, 1, 0, -deg);
+      camera.transform.Rotate(0, 1, 0, -deg);
     } else if(glfwGetKey(win_, GLFW_KEY_Q)) {
-      camera.rotate(0, 0, 1, deg);
+      camera.transform.Rotate(0, 0, 1, deg);
     } else if(glfwGetKey(win_, GLFW_KEY_E)) {
-      camera.rotate(0, 0, 1, -deg);
+      camera.transform.Rotate(0, 0, 1, -deg);
     }
   }
 
@@ -134,6 +134,16 @@ public:
         rb.set_previous_active_face();
       } else if(key == GLFW_KEY_RIGHT) {
         rb.set_next_active_face();
+      } else if(key == GLFW_KEY_ENTER) {
+        rb.set_manipulation_cw();
+      } else if(key == GLFW_KEY_BACKSPACE) {
+        rb.set_manipulation_ccw();
+      } else if(key == GLFW_KEY_T) {
+        if(mods & GLFW_MOD_SHIFT) {
+          rb.solve();
+        } else {
+          rb.shuffle();
+        }
       }
     }
   }

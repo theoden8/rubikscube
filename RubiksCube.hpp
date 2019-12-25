@@ -1,24 +1,28 @@
 #pragma once
 
+#include <cmath>
+
 #include <array>
+#include <map>
 
 #include <Logger.hpp>
 #include <Debug.hpp>
 
-#include <Quad.hpp>
-#include <Box.hpp>
+#include <QuadCommon.hpp>
+#include <BoxCommon.hpp>
 #include <Facing.hpp>
+#include <Manipulation.hpp>
 #include <Rubiks.hpp>
 
+template <size_t N = 3>
 struct RubiksCube {
-  static constexpr size_t N = 3;
   static constexpr glm::vec3
     WHITE = glm::vec3(1, 1, 1),
     RED = glm::vec3(1, .5, .5),
     GREEN = glm::vec3(.48, .898, .572),
     BLUE = glm::vec3(.63, .66, 1),
-    YELLOW = glm::vec3(1, .8, .236),
-    PINK = glm::vec3(1, .2, .5),
+    YELLOW = glm::vec3(.98, .92, .365),
+    ORANGE = glm::vec3(1, .6, .2),
     CYAN = glm::vec3(.2, 1, 1),
     GRAY = glm::vec3(.8, .8, .8),
     BLACK = glm::vec3(0, 0, 0);
@@ -27,14 +31,19 @@ struct RubiksCube {
 
   Camera &cam;
 
-  Quad quad;
-  Box insideBox;
+  QuadCommon quadcommon;
+  BoxCommon boxcommon;
   std::vector<Facing> facings;
 
-  RubiksCube(Camera &cam):
+  ManipulationPerformer manip;
+  std::queue<Manipulation> manipulationQueue;
+  std::vector<Manipulation> manipulations;
+  int currentManipulation = -1;
+
+  RubiksCube(Camera &cam, const std::string &dir):
     cam(cam),
-    insideBox(cam, GRAY, .5),
-    quad("vposition"s)
+    quadcommon("vposition"s, dir),
+    boxcommon("vposition"s, dir)
   {
     facings.reserve(RubiksT::number_of_boxes);
     const float totalsize = .7;
@@ -56,12 +65,10 @@ struct RubiksCube {
           if(k_edge)face_types[2] = (k == 0) ? Face::Z_FRONT : Face::Z_BACK;
 
           glm::vec3 position = glm::vec3(step * i, step * j, step * k) - totalsize / 2;
-          facings.push_back(Facing(cam, face_types, scale, position));
+          facings.push_back(Facing(cam, face_types, scale, position, quadcommon, boxcommon));
         }
       }
     }
-    /* Logger::Info("facing sizes: %lu\n", facings.size()); */
-    /* Logger::Info("expected: %lu\n", RubiksT::number_of_boxes); */
     ASSERT(facings.size() == RubiksT::number_of_boxes);
   }
 
@@ -108,20 +115,24 @@ struct RubiksCube {
   Face lastNearest = Face::NFACE;
   Face nearestFace = Face::NFACE;
   void init() {
-    quad.init();
-    insideBox.init();
+    quadcommon.init();
+    boxcommon.init();
+
     for(auto &f : facings) {
       Logger::Info("%s\n", f.str().c_str());
-      f.init(quad);
+      f.init();
     }
+    quadcommon.finish_init();
+    boxcommon.finish_init();
+
     set_color(Face::X_FRONT, WHITE);
     set_color(Face::X_BACK,  YELLOW);
-    set_color(Face::Y_FRONT, PINK);
+    set_color(Face::Y_FRONT, ORANGE);
     set_color(Face::Y_BACK,  RED);
     set_color(Face::Z_FRONT, BLUE);
     set_color(Face::Z_BACK,  GREEN);
 
-    set_new_active_face(Face::X_FRONT);
+    set_new_active_face(Face::X_BACK);
   }
 
   Face activeFace() {
@@ -145,6 +156,7 @@ struct RubiksCube {
       case Face::Y_BACK:f=Face::Y_FRONT;break;
       case Face::Z_FRONT:f=Face::Z_BACK;break;
       case Face::Z_BACK:f=Face::Z_FRONT;break;
+      case Face::NFACE:break;
     }
     set_new_active_face(f);
   }
@@ -203,20 +215,68 @@ struct RubiksCube {
     }
   }
 
-  void draw() {
-    set_selection();
-    set_nearest();
-    insideBox.draw();
+  inline void set_manipulation_cw() {
+    manip.set_new(Manipulation(activeFace(), Rotation::CLOCKWISE));
+  }
+
+  inline void set_manipulation_ccw() {
+    manip.set_new(Manipulation(activeFace(), Rotation::COUNTERCLOCKWISE));
+  }
+
+  inline void update_face_types(const Manipulation &m) {
+    /* Logger::Info("%s   %s\n", face_to_string(m.face).c_str(), rotation_to_string(m.rot).c_str()); */
+    std::map<Face, int> counts, newcounts;
     for(auto &f : facings) {
-      f.draw();
+      if(f.has_face(m.face)) {
+        for(const auto ft : f.face_types)++counts[ft];
+        f.update_face_types(m.rot, m.face);
+        for(const auto ft : f.face_types)++newcounts[ft];
+      }
+    }
+
+    for(Face face : {
+      Face::X_FRONT, Face::X_BACK,
+      Face::Y_FRONT, Face::Y_BACK,
+      Face::Z_FRONT, Face::Z_BACK,
+      Face::NFACE
+    })
+    {
+      if(counts[face] != newcounts[face]) {
+        std::vector<char> buf(1000);
+        sprintf(buf.data(), "different numbers of faces: %s - [%d] vs [%d]\n", face_to_string(face).c_str(), counts[face], newcounts[face]);
+        TERMINATE(std::string(buf.begin(), buf.end()).c_str());
+      }
+    }
+    ASSERT(counts[m.face] == N * N);
+  }
+
+  void shuffle(int no_steps=40) {
+    for(int i = 0; i < no_steps; ++i) {
+      manip.set_new(Manipulation::make_random());
     }
   }
 
+  void solve() {
+    while(manip.count()) {
+      manip.take_back();
+    }
+  }
+
+  void draw() {
+    manip.perform_step(*this);
+    set_selection();
+    set_nearest();
+    for(auto &f : facings) {
+      f.draw();
+    }
+    /* cam.has_changed = false; */
+  }
+
   void clear() {
-    insideBox.clear();
     for(auto &f : facings) {
       f.clear();
     }
-    quad.clear();
+    quadcommon.clear();
+    boxcommon.clear();
   }
 };

@@ -2,16 +2,14 @@
 
 #include <incgraphics.h>
 
-#include "File.hpp"
-#include "Shader.hpp"
-#include "Debug.hpp"
-#include "Logger.hpp"
+#include <File.hpp>
+#include <Debug.hpp>
+#include <Logger.hpp>
 
 #include <string>
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
-#include <sys/stat.h>
 
 namespace gl {
 enum class ShaderType {
@@ -50,11 +48,14 @@ struct Shader {
       throw std::runtime_error("unknown shader type");
     }
   }
+
   ~Shader()
   {}
+
   int id() const {
     return shaderId;
   }
+
   void init() {
     shaderId = glCreateShader(gl::get_gl_shader_constant<ShaderT>()); GLERROR
     std::string source_code = file.load_text();
@@ -62,8 +63,17 @@ struct Shader {
     glShaderSource(shaderId, 1, &source, nullptr); GLERROR
     glCompileShader(shaderId); GLERROR
   }
+
+  static void init(Shader<ShaderT> &shader) {
+    shader.init();
+  }
+
   void clear() {
     glDeleteShader(shaderId); GLERROR
+  }
+
+  static void clear(Shader<ShaderT> &shader) {
+    shader.clear();
   }
 };
 
@@ -72,4 +82,4 @@ using GeometryShader = Shader<ShaderType::GEOMETRY>;
 using FragmentShader = Shader<ShaderType::FRAGMENT>;
 using ComputeShader = Shader<ShaderType::COMPUTE>;
 
-}
+} // namespace gl

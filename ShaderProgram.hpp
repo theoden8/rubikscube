@@ -16,52 +16,53 @@ template <typename... ShaderTs>
 class ShaderProgram {
   GLuint programId = 0;
   std::tuple<ShaderTs...> shaders;
+  bool shaderOwnership;
 
-  enum class ResourceType {
-    UNIFORM,
-    UNIFORM_BLOCK,
-    PROGRAM_INPUT,
-    PROGRAM_OUTPUT,
-    SUBROUTINE,
-    SUBROUTINE_UNIFORM,
-    TRANSFORM_FEEDBACK_VARYING,
-    TRANSFORM_FEEDBACK_BUFFER,
-    BUFFER_VARIABLE,
-    SHADER_STORAGE_BLOCK,
-  };
+  /* enum class ResourceType { */
+  /*   UNIFORM, */
+  /*   UNIFORM_BLOCK, */
+  /*   PROGRAM_INPUT, */
+  /*   PROGRAM_OUTPUT, */
+  /*   SUBROUTINE, */
+  /*   SUBROUTINE_UNIFORM, */
+  /*   TRANSFORM_FEEDBACK_VARYING, */
+  /*   TRANSFORM_FEEDBACK_BUFFER, */
+  /*   BUFFER_VARIABLE, */
+  /*   SHADER_STORAGE_BLOCK, */
+  /* }; */
 
-  template <ResourceType rT, ShaderType sT = ShaderType::NO_TYPE>
-  static constexpr GLenum get_gl_resource_type() {
-    return 0;
-    /* switch(rT) { */
-    /*   case ResourceType::UNIFORM:return GL_UNIFORM; */
-    /*   case ResourceType::UNIFORM_BLOCK:return GL_UNIFORM_BLOCK; */
-    /*   case ResourceType::PROGRAM_INPUT:return GL_PROGRAM_INPUT; */
-    /*   case ResourceType::PROGRAM_OUTPUT:return GL_PROGRAM_OUTPUT; */
-    /*   case ResourceType::SUBROUTINE: */
-    /*     switch(sT) { */
-    /*       case ShaderType::VERTEX: return GL_VERTEX_SUBROUTINE; */
-    /*       case ShaderType::TESS_CNTRL: return GL_TESS_CONTROL_SUBROUTINE; */
-    /*       case ShaderType::TESS_EVAL: return GL_TESS_EVALUATION_SUBROUTINE; */
-    /*       case ShaderType::GEOMETRY: return GL_GEOMETRY_SUBROUTINE; */
-    /*       case ShaderType::FRAGMENT: return GL_FRAGMENT_SUBROUTINE; */
-    /*       case ShaderType::COMPUTE: return GL_COMPUTE_SUBROUTINE; */
-    /*     } */
-    /*   case ResourceType::SUBROUTINE_UNIFORM: */
-    /*     switch(sT) { */
-    /*       case ShaderType::VERTEX: return GL_VERTEX_SUBROUTINE_UNIFORM; */
-    /*       case ShaderType::TESS_CNTRL: return GL_TESS_CONTROL_SUBROUTINE_UNIFORM; */
-    /*       case ShaderType::TESS_EVAL: return GL_TESS_EVALUATION_SUBROUTINE_UNIFORM; */
-    /*       case ShaderType::GEOMETRY: return GL_GEOMETRY_SUBROUTINE_UNIFORM; */
-    /*       case ShaderType::FRAGMENT: return GL_FRAGMENT_SUBROUTINE_UNIFORM; */
-    /*       case ShaderType::COMPUTE: return GL_COMPUTE_SUBROUTINE_UNIFORM; */
-    /*     } */
-    /*   case ResourceType::TRANSFORM_FEEDBACK_VARYING:return GL_TRANSFORM_FEEDBACK_VARYING; */
-    /*   case ResourceType::TRANSFORM_FEEDBACK_BUFFER:return GL_TRANSFORM_FEEDBACK_BUFFER; */
-    /*   case ResourceType::BUFFER_VARIABLE:return GL_BUFFER_VARIABLE; */
-    /*   case ResourceType::SHADER_STORAGE_BLOCK:return GL_SHADER_STORAGE_BLOCK; */
-    /* } */
-  }
+/*   template <ResourceType rT, ShaderType sT = ShaderType::NO_TYPE> */
+/*   static constexpr GLenum get_gl_resource_type() { */
+/*     return 0; */
+/*     switch(rT) { */
+/*       case ResourceType::UNIFORM:return GL_UNIFORM; */
+/*       case ResourceType::UNIFORM_BLOCK:return GL_UNIFORM_BLOCK; */
+/*       case ResourceType::PROGRAM_INPUT:return GL_PROGRAM_INPUT; */
+/*       case ResourceType::PROGRAM_OUTPUT:return GL_PROGRAM_OUTPUT; */
+/*       case ResourceType::SUBROUTINE: */
+/*         switch(sT) { */
+/*           case ShaderType::VERTEX: return GL_VERTEX_SUBROUTINE; */
+/*           case ShaderType::TESS_CNTRL: return GL_TESS_CONTROL_SUBROUTINE; */
+/*           case ShaderType::TESS_EVAL: return GL_TESS_EVALUATION_SUBROUTINE; */
+/*           case ShaderType::GEOMETRY: return GL_GEOMETRY_SUBROUTINE; */
+/*           case ShaderType::FRAGMENT: return GL_FRAGMENT_SUBROUTINE; */
+/*           case ShaderType::COMPUTE: return GL_COMPUTE_SUBROUTINE; */
+/*         } */
+/*       case ResourceType::SUBROUTINE_UNIFORM: */
+/*         switch(sT) { */
+/*           case ShaderType::VERTEX: return GL_VERTEX_SUBROUTINE_UNIFORM; */
+/*           case ShaderType::TESS_CNTRL: return GL_TESS_CONTROL_SUBROUTINE_UNIFORM; */
+/*           case ShaderType::TESS_EVAL: return GL_TESS_EVALUATION_SUBROUTINE_UNIFORM; */
+/*           case ShaderType::GEOMETRY: return GL_GEOMETRY_SUBROUTINE_UNIFORM; */
+/*           case ShaderType::FRAGMENT: return GL_FRAGMENT_SUBROUTINE_UNIFORM; */
+/*           case ShaderType::COMPUTE: return GL_COMPUTE_SUBROUTINE_UNIFORM; */
+/*         } */
+/*       case ResourceType::TRANSFORM_FEEDBACK_VARYING:return GL_TRANSFORM_FEEDBACK_VARYING; */
+/*       case ResourceType::TRANSFORM_FEEDBACK_BUFFER:return GL_TRANSFORM_FEEDBACK_BUFFER; */
+/*       case ResourceType::BUFFER_VARIABLE:return GL_BUFFER_VARIABLE; */
+/*       case ResourceType::SHADER_STORAGE_BLOCK:return GL_SHADER_STORAGE_BLOCK; */
+/*     } */
+/*   } */
 
 public:
   struct Binary {
@@ -69,8 +70,7 @@ public:
     GLenum format;
     void *data = nullptr;
 
-    Binary(ShaderProgram<ShaderTs...> &program)
-    {
+    Binary(ShaderProgram<ShaderTs...> &program) {
       size = program.get<GL_PROGRAM_BINARY_LENGTH>();
       data = malloc(size);
       GLint written_bytes;
@@ -89,18 +89,24 @@ public:
 
   void compile_program() {
     Tuple::for_each(shaders, [&](auto &s) mutable -> void {
-      s.init();
+      if(shaderOwnership) {
+        s.init();
+      }
     });
+
     programId = glCreateProgram(); GLERROR
-    ASSERT(programId != 0);
+    ASSERT(this->programId != 0);
     Tuple::for_each(shaders, [&](auto &s) mutable -> void {
       glAttachShader(programId, s.id()); GLERROR
     });
     glLinkProgram(programId); GLERROR
+
     Tuple::for_each(shaders, [&](auto &s) mutable -> void {
-      s.clear();
+      if(shaderOwnership) {
+        s.clear();
+      }
     });
-    ASSERT(is_valid());
+    ASSERT(this->is_valid());
   }
 
   void bind_attrib(int index, const std::string &location) {
@@ -109,7 +115,18 @@ public:
 
   template <typename... STRINGs>
   ShaderProgram(STRINGs&&... shader_filenames):
-    shaders(std::forward<STRINGs>(shader_filenames)...)
+    shaders(std::forward<STRINGs>(shader_filenames)...),
+    shaderOwnership(true)
+  {}
+
+  ShaderProgram(const ShaderTs &... shaders):
+    shaders(std::forward<ShaderTs>(shaders)...),
+    shaderOwnership(false)
+  {}
+
+  ShaderProgram(const ShaderTs &&... shaders):
+    shaders(std::forward<ShaderTs>(shaders)...),
+    shaderOwnership(true)
   {}
 
   GLuint id() const {
@@ -127,21 +144,21 @@ public:
     return Binary(*this);
   }
 
-  template <ResourceType ResourceT, ShaderType ShaderT>
-  int get_resource_index(std::string name) {
-    constexpr GLenum vartype = get_gl_resource_type<ResourceT, ShaderT>();
-    auto ind = glGetProgramResourceIndex(id(), vartype, name.c_str()); GLERROR
-    return ind;
-  }
+/*   template <ResourceType ResourceT, ShaderType ShaderT> */
+/*   int get_resource_index(std::string name) { */
+/*     constexpr GLenum vartype = get_gl_resource_type<ResourceT, ShaderT>(); */
+/*     auto ind = glGetProgramResourceIndex(id(), vartype, name.c_str()); GLERROR */
+/*     return ind; */
+/*   } */
 
-  template <ResourceType ResourceT, ShaderType ShaderT>
-  std::string get_resource_name(int index) {
-    char name[255];
-    constexpr GLenum vartype = get_gl_resource_type<ResourceT, ShaderT>();
-    int len;
-    glGetProgramResourceIndex(id(), vartype, index, 255, &len, name); GLERROR
-    return name;
-  }
+/*   template <ResourceType ResourceT, ShaderType ShaderT> */
+/*   std::string get_resource_name(int index) { */
+/*     char name[255]; */
+/*     constexpr GLenum vartype = get_gl_resource_type<ResourceT, ShaderT>(); */
+/*     int len; */
+/*     glGetProgramResourceIndex(id(), vartype, index, 255, &len, name); GLERROR */
+/*     return name; */
+/*   } */
 
   template <typename... AttribTs>
   static void init(ShaderProgram<ShaderTs...> &program, gl::VertexArray<AttribTs ...> &vao) {
