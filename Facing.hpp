@@ -69,7 +69,7 @@ public:
     u_highlight("highlight"),
     u_color("color"),
     u_transform("transform"),
-    box(boxcommon, cam, glm::vec3(0, 0, 0)),
+    box(boxcommon, cam, glm::vec3(0.1, 0.1, 0.1)),
     cam(cam)
   {
     transform.SetScale(scale);
@@ -131,7 +131,7 @@ public:
 public:
   float depth = 0.5;
   void update_depth() {
-    depth = (matrix * glm::vec4(.5, .5, .5, 1.)).x;
+    depth = (matrix * glm::vec4(.5, .5, .5, 1.)).z;
   }
 
   std::string str() {
@@ -145,7 +145,7 @@ public:
   }
 
 private:
-  int face_to_index(Face &f) {
+  int face_to_index(const Face &f) {
     int q = 0;
     for(auto &ft : face_types) {
       if(ft == f) {
@@ -175,15 +175,27 @@ public:
   }
 
   template <typename F>
-  void select_face(Face &f, F &&func) {
+  void select_face(const Face &f, F &&func) {
     if(has_face(f)) {
       int id = face_to_index(f);
-      func(
-        get(colors, id),
-        cubeTransform,
-        highlight
-      );
+      func(*this, f);
     }
+  }
+
+  int getHighlight() const {
+    return highlight;
+  }
+
+  void setHighlight(int h) {
+    highlight = h;
+  }
+
+  Transformation &getCubeTransform() {
+    return cubeTransform;
+  }
+
+  void setColor(const Face f, const glm::vec3 &color) {
+    get(colors, face_to_index(f)) = color;
   }
 
   void update_transforms() {

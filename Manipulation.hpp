@@ -97,8 +97,8 @@ class ManipulationPerformer {
       sign = -1.;
     }
 
-    rb.select_face(f, [&](glm::vec3 &c, Transformation &t, int &h) mutable -> void {
-      t.Rotate(axis, sign * deg);
+    rb.select_face(f, [&](Facing &f, const Face &face) mutable -> void {
+      f.getCubeTransform().Rotate(axis, sign * deg);
     });
   }
 

@@ -73,39 +73,38 @@ struct RubiksCube {
   }
 
   template <typename F>
-  void select_face(Face face, F &&func) {
+  void select_face(const Face face, F &&func) {
     if(face == Face::NFACE)return;
     for(auto &f : facings) {
       f.select_face(face, std::forward<F>(func));
     }
   }
 
-  void set_highlight(Face face, int value=1) {
-    select_face(face, [&](glm::vec3 &c, Transformation &t, int &h) mutable -> void {
-      h = value;
-    });
-  }
-
-  void unset_highlight(Face face) {
-    set_highlight(face, 0);
-  }
-
-  void set_secondary_highlight(Face face, int value) {
-    if(face == Face::NFACE)return;
-    select_face(face, [&](glm::vec3 &c, Transformation &t, int &h) mutable -> void {
-      if(h != 1) {
-        h = value;
+  void set_highlight(const Face face, int value=1) {
+    select_face(face, [&](Facing &f, const Face &face) mutable -> void {
+      if(f.getHighlight() != value) {
+        if(value == 1) {
+          f.getCubeTransform().Scale(1.05);
+        } else if(f.getHighlight() == 1) {
+          f.getCubeTransform().Scale(1./1.05);
+        }
+        f.setHighlight(value);
       }
     });
   }
 
-  void unset_secondary_highlight(Face face) {
-    set_secondary_highlight(face, 0);
-  }
+  void set_secondary_highlight(const Face face, int value = 2) {
+    if(face == Face::NFACE)return;
+    select_face(face, [&](Facing &f, const Face &face) mutable -> void {
+      if(f.getHighlight() != value && f.getHighlight() != 1) {
+        f.setHighlight(value);
+      }
+    });
+  };
 
-  void set_color(Face face, glm::vec3 color) {
-    select_face(face, [&](glm::vec3 &c, Transformation &t, int &h) mutable -> void {
-      c = color;
+  void set_color(Face face, const glm::vec3 &color) {
+    select_face(face, [&](Facing &f, const Face &face) mutable -> void {
+      f.setColor(face, color);
     });
   }
 
@@ -196,18 +195,28 @@ struct RubiksCube {
   bool changed_selection = false;
   void set_selection() {
     if(lastActiveFace != activeFace()) {
-      unset_highlight(lastActiveFace);
+      set_highlight(lastActiveFace, 0);
       lastActiveFace = activeFace();
       set_highlight(activeFace());
       changed_selection = true;
     }
   }
 
+  void unset_selection() {
+    set_highlight(activeFace(), 0);
+    set_secondary_highlight(nearestFace, 0);
+  }
+
+  void reset_selection() {
+    set_highlight(activeFace(), 1);
+    set_secondary_highlight(nearestFace, 2);
+  }
+
   void set_nearest() {
     nearestFace = find_nearest_face();
     ASSERT(nearestFace != Face::NFACE);
     if(nearestFace != lastNearest || changed_selection) {
-      unset_secondary_highlight(lastNearest);
+      set_secondary_highlight(lastNearest, 0);
       set_secondary_highlight(nearestFace, 2);
       lastNearest = nearestFace;
       changed_selection = false;
@@ -224,6 +233,7 @@ struct RubiksCube {
 
   inline void update_face_types(const Manipulation &m) {
     /* Logger::Info("%s   %s\n", face_to_string(m.face).c_str(), rotation_to_string(m.rot).c_str()); */
+    unset_selection();
     std::map<Face, int> counts, newcounts;
     for(auto &f : facings) {
       if(f.has_face(m.face)) {
@@ -247,6 +257,7 @@ struct RubiksCube {
       }
     }
     ASSERT(counts[m.face] == N * N);
+    reset_selection();
   }
 
   void shuffle(int no_steps=40) {
