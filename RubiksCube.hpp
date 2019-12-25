@@ -119,7 +119,7 @@ struct RubiksCube {
     boxcommon.init();
 
     for(auto &f : facings) {
-      Logger::Info("%s\n", f.str().c_str());
+      /* Logger::Info("%s\n", f.str().c_str()); */
       f.init();
     }
     quadcommon.finish_init();

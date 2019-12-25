@@ -43,7 +43,7 @@ private:
   using VertexArray = QuadCommon::VertexArray;
 
   ShaderProgram &prog;
-  std::list<ShaderAttrib> a_position;
+  std::list<ShaderAttrib *> a_position;
   VertexArray &vao;
 
   gl::Uniform<gl::UniformType::INTEGER> u_highlight;
@@ -108,11 +108,11 @@ public:
 
   void init() {
     box.init();
-    iterate_face_attributes([&](auto attr) mutable -> void {
+    iterate_face_attributes([&](auto &attr) mutable -> void {
       /* Logger::Info("  face\n"); */
       colors.push_back(glm::vec3(1,1,1));
 
-      a_position.push_back(attr);
+      a_position.push_back(&attr);
     });
   }
 
@@ -187,12 +187,15 @@ public:
   }
 
   void update_transforms() {
-    matrix = cam.get_matrix() * cubeTransform.get_matrix() * transform.get_matrix();
+    if(cam.has_changed || cubeTransform.has_changed || transform.has_changed) {
+      matrix = cam.get_matrix() * cubeTransform.get_matrix() * transform.get_matrix();
+    }
   }
 
   void draw() {
     update_transforms();
     update_depth();
+
     Transformation boxCubeTransform = cubeTransform;
     boxCubeTransform.Scale(.98);
     box.draw(boxCubeTransform);
@@ -201,7 +204,7 @@ public:
     for(int i = 0; i < a_position.size(); ++i) {
       update_uniforms(i);
 
-      auto &current_vpos = get(a_position, i);
+      auto &current_vpos = *get(a_position, i);
       int current_vao_attrib_position = 0;
 
       vao.enable_d(current_vao_attrib_position);
@@ -212,13 +215,12 @@ public:
       vao.disable_d(current_vao_attrib_position);
     }
     ShaderProgram::unuse();
-    transform.has_changed = false;
-    cubeTransform.has_changed = false;
+    transform.has_changed = cubeTransform.has_changed = false;
   }
 
   void clear() {
     for(int i = 0; i < no_faces(); ++i) {
-      ShaderAttrib::clear(get(a_position, i));
+      ShaderAttrib::clear(*get(a_position, i));
     }
     box.clear();
   }

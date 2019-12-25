@@ -79,9 +79,9 @@ public:
     glDepthFunc(GL_LESS); GLERROR
 
 
-    /* glEnable(GL_CULL_FACE); GLERROR // cull face */
-    /* glCullFace(GL_BACK); GLERROR // cull back face */
-    /* glFrontFace(GL_CW); GLERROR // GL_CCW for counter clock-wise */
+    glEnable(GL_CULL_FACE); GLERROR // cull face
+    glCullFace(GL_BACK); GLERROR // cull back face
+    glFrontFace(GL_CW); GLERROR // GL_CCW for counter clock-wise
 
     rb.init();
 
