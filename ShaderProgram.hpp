@@ -168,14 +168,15 @@ public:
   template <typename... AttribTs>
   void init(gl::VertexArray<AttribTs...> &vao) {
     gl::VertexArray<AttribTs...>::bind(vao);
-    compile_program();
+    this->compile_program();
     int i = 0;
     Tuple::for_each(vao.attributes, [&](const auto &attrib) -> void {
-      bind_attrib(i, attrib.location);
+      this->bind_attrib(i, attrib.location);
       ++i;
     });
     gl::VertexArray<AttribTs...>::unbind();
   }
+
 
   static void use(GLuint progId) {
     glUseProgram(progId); GLERROR

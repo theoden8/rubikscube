@@ -3,6 +3,7 @@
 
 #include <ShaderAttrib.hpp>
 #include <Shader.hpp>
+#include <ShaderProgram.hpp>
 
 
 class QuadCommon {
@@ -33,26 +34,50 @@ class QuadCommon {
     };
 
 public:
+  using ShaderProgram = gl::ShaderProgram<
+    gl::VertexShader,
+    gl::GeometryShader,
+    gl::FragmentShader
+  >;
   using ShaderAttrib = gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3>;
+  using VertexArray = gl::VertexArray<
+    ShaderAttrib, ShaderAttrib,
+    ShaderAttrib, ShaderAttrib,
+    ShaderAttrib, ShaderAttrib
+  >;
+  ShaderProgram program;
   ShaderAttrib
     vpos_xf, vpos_xb,
     vpos_yf, vpos_yb,
     vpos_zf, vpos_zb;
+  VertexArray vao;
 
-  gl::VertexShader vshader;
-  gl::GeometryShader gshader;
-  gl::FragmentShader fshader;
+  static constexpr int VAO_ATTRIB_VPOSITION = 0;
+
+/*   gl::VertexShader vshader; */
+/*   gl::GeometryShader gshader; */
+/*   gl::FragmentShader fshader; */
 
   QuadCommon(std::string vpos_name, const std::string &dir):
+    program({
+      dir + "shaders/shader.vert",
+      dir + "shaders/shader.geom",
+      dir + "shaders/shader.frag"
+    }),
     vpos_xf(vpos_name),
     vpos_xb(vpos_name),
     vpos_yf(vpos_name),
     vpos_yb(vpos_name),
     vpos_zf(vpos_name),
     vpos_zb(vpos_name),
-    vshader(dir + "shaders/shader.vert"),
-    gshader(dir + "shaders/shader.geom"),
-    fshader(dir + "shaders/shader.frag")
+    vao(
+      vpos_xf, vpos_xb,
+      vpos_yf, vpos_yb,
+      vpos_zf, vpos_zb
+    )
+    /* vshader(dir + "shaders/shader.vert"), */
+    /* gshader(dir + "shaders/shader.geom"), */
+    /* fshader(dir + "shaders/shader.frag") */
   {}
 
   void init() {
@@ -74,15 +99,15 @@ public:
     ShaderAttrib::init(vpos_zb);
     vpos_zb.allocate<GL_STATIC_DRAW>(z_back);
 
-    gl::VertexShader::init(vshader);
-    gl::GeometryShader::init(gshader);
-    gl::FragmentShader::init(fshader);
+    VertexArray::init(vao);
+    VertexArray::bind(vao);
+
+    ShaderProgram::init(program, vao);
+
+    VertexArray::unbind();
   }
 
   void finish_init() {
-    gl::VertexShader::clear(vshader);
-    gl::GeometryShader::clear(gshader);
-    gl::FragmentShader::clear(fshader);
   }
 
   void clear() {
@@ -92,5 +117,7 @@ public:
     ShaderAttrib::clear(vpos_yb);
     ShaderAttrib::clear(vpos_zf);
     ShaderAttrib::clear(vpos_zb);
+    vao.clear();
+    ShaderProgram::clear(program);
   }
 };

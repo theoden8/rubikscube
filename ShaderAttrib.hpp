@@ -80,7 +80,7 @@ struct Attrib {
   {}
 
   bool operator==(const self_t &other) const {
-    return location == other.location;
+    return location == other.location && vbo == other.vbo;
   }
 
   static void init(GLuint &vbo) {
@@ -109,11 +109,11 @@ struct Attrib {
     glBindBuffer(BufferT, vbo); GLERROR
   }
 
-  static void bind(Attrib<BufferT, AttribT> &attr) {
+  static void bind(const Attrib<BufferT, AttribT> &attr) {
     attr.bind();
   }
 
-  void bind() {
+  void bind() const {
     bind(vbo);
   }
 
@@ -170,20 +170,6 @@ struct Attrib {
       }
       Logger::Info(")\n");
     }
-  }
-
-  void set_access(size_t start=0, size_t stride=0) {
-    this->bind();
-
-    using atype = a_cast_type<AttribT>;
-    glVertexAttribPointer(start,
-      sizeof(typename atype::type) / sizeof(typename atype::vtype),
-      gl_scalar_enum<typename atype::vtype>::value,
-      GL_FALSE,
-      stride,
-      nullptr); GLERROR
-
-    this->unbind();
   }
 
   decltype(auto) operator[](size_t i) {

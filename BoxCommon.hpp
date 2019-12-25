@@ -2,7 +2,6 @@
 
 
 #include <ShaderAttrib.hpp>
-#include <ShaderUniform.hpp>
 #include <Shader.hpp>
 #include <ShaderProgram.hpp>
 
@@ -60,7 +59,7 @@ public:
     VertexArray::init(vao);
     VertexArray::bind(vao);
 
-    a_position.set_access(0, 0);
+    vao.set_access(a_position);
 
     // enable all attributes
     vao.enable(a_position);

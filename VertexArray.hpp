@@ -44,11 +44,50 @@ struct VertexArray {
     bind(vaoId);
   }
 
+  void enable_d(GLuint ind) {
+    this->bind();
+    glEnableVertexAttribArray(ind); GLERROR
+    this->unbind();
+  }
+
   template <typename AttribT>
   void enable(const AttribT &attrib) {
     int ind = Tuple::lfind(attributes, attrib);
     ASSERT(ind != -1);
-    glEnableVertexAttribArray(ind); GLERROR
+    this->enable_d(ind);
+  }
+
+  template <typename AttribT>
+  void set_access(const AttribT &attrib, size_t stride=0, int index=-1) {
+    this->bind();
+
+    attrib.bind();
+
+    using atype = a_cast_type<AttribT::attrib_type>;
+    index = (index == -1) ? Tuple::lfind(attributes, attrib) : index;
+    glVertexAttribPointer(index,
+      sizeof(typename atype::type) / sizeof(typename atype::vtype),
+      gl_scalar_enum<typename atype::vtype>::value,
+      GL_FALSE,
+      stride,
+      nullptr); GLERROR
+
+    attrib.unbind();
+
+    this->unbind();
+  }
+
+  void disable_d(GLuint ind) {
+    this->bind();
+    glDisableVertexAttribArray(ind); GLERROR
+    this->unbind();
+  }
+
+  template <typename AttribT>
+  void disable(const AttribT &attrib) {
+    int ind = Tuple::lfind(attributes, attrib);
+    ASSERT(ind != -1);
+    this->disable_d(ind);
   }
 
   template <GLenum PRIMITIVES>

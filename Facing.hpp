@@ -38,17 +38,13 @@ public:
 private:
   std::list<glm::vec3> colors;
 
-  using ShaderProgram = gl::ShaderProgram<
-    gl::VertexShader,
-    gl::GeometryShader,
-    gl::FragmentShader
-  >;
-  using ShaderAttrib = gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3>;
-  using VertexArray = gl::VertexArray<ShaderAttrib>;
+  using ShaderProgram = QuadCommon::ShaderProgram;
+  using ShaderAttrib = QuadCommon::ShaderAttrib;
+  using VertexArray = QuadCommon::VertexArray;
 
-  std::list<ShaderProgram> prog;
+  ShaderProgram &prog;
   std::list<ShaderAttrib> a_position;
-  std::list<VertexArray> vao;
+  VertexArray &vao;
 
   gl::Uniform<gl::UniformType::INTEGER> u_highlight;
   gl::Uniform<gl::UniformType::VEC3> u_color;
@@ -68,6 +64,8 @@ public:
   ):
     face_types(face_types),
     quadcommon(quadcommon),
+    prog(quadcommon.program),
+    vao(quadcommon.vao),
     u_highlight("highlight"),
     u_color("color"),
     u_transform("transform"),
@@ -111,36 +109,15 @@ public:
   void init() {
     box.init();
     iterate_face_attributes([&](auto attr) mutable -> void {
-      Logger::Info("  face\n");
+      /* Logger::Info("  face\n"); */
       colors.push_back(glm::vec3(1,1,1));
 
       a_position.push_back(attr);
-      auto &current_a_position = a_position.back();
-
-      vao.push_back(VertexArray(current_a_position));
-      auto &current_vao = vao.back();
-
-      prog.push_back(ShaderProgram(
-        quadcommon.vshader,
-        quadcommon.gshader,
-        quadcommon.fshader
-      ));
-      auto &current_prog = prog.back();
-
-      VertexArray::init(current_vao);
-      VertexArray::bind(current_vao);
-
-      current_vao.enable(current_a_position);
-
-      current_a_position.set_access(0, 0);
-
-      ShaderProgram::init(current_prog, current_vao);
-
     });
   }
 
   void update_uniforms(int id) {
-    auto programid = get(prog, id).id();
+    auto programid = prog.id();
     if(transform.has_changed || cubeTransform.has_changed || cam.has_changed) {
       u_transform.set_id(programid);
       u_transform.set_data(matrix);
@@ -219,21 +196,29 @@ public:
     Transformation boxCubeTransform = cubeTransform;
     boxCubeTransform.Scale(.98);
     box.draw(boxCubeTransform);
-    for(int i = 0; i < prog.size(); ++i) {
-      ShaderProgram::use(get(prog, i));
+
+    ShaderProgram::use(prog);
+    for(int i = 0; i < a_position.size(); ++i) {
       update_uniforms(i);
-      VertexArray::draw<GL_TRIANGLES>(get(vao, i));
-      ShaderProgram::unuse();
+
+      auto &current_vpos = get(a_position, i);
+      int current_vao_attrib_position = 0;
+
+      vao.enable_d(current_vao_attrib_position);
+      vao.set_access(current_vpos, 0, current_vao_attrib_position);
+      vao.bind();
+      current_vpos.bind();
+      VertexArray::draw<GL_TRIANGLES>(vao);
+      vao.disable_d(current_vao_attrib_position);
     }
+    ShaderProgram::unuse();
     transform.has_changed = false;
     cubeTransform.has_changed = false;
   }
 
   void clear() {
-    for(int i = 0; i < prog.size(); ++i) {
+    for(int i = 0; i < no_faces(); ++i) {
       ShaderAttrib::clear(get(a_position, i));
-      VertexArray::clear(get(vao, i));
-      ShaderProgram::clear(get(prog, i));
     }
     box.clear();
   }
