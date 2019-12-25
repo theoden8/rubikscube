@@ -83,11 +83,11 @@ struct RubiksCube {
   void set_highlight(const Face face, int value=1) {
     select_face(face, [&](Facing &f, const Face &face) mutable -> void {
       if(f.getHighlight() != value) {
-        if(value == 1) {
-          f.getCubeTransform().Scale(1.05);
-        } else if(f.getHighlight() == 1) {
-          f.getCubeTransform().Scale(1./1.05);
-        }
+        /* if(value == 1) { */
+        /*   f.getCubeTransform().Scale(1.05); */
+        /* } else if(f.getHighlight() == 1) { */
+        /*   f.getCubeTransform().Scale(1./1.05); */
+        /* } */
         f.setHighlight(value);
       }
     });
@@ -273,9 +273,9 @@ struct RubiksCube {
   }
 
   void draw() {
-    manip.perform_step(*this);
     set_selection();
     set_nearest();
+    manip.perform_step(*this);
     for(auto &f : facings) {
       f.draw();
     }

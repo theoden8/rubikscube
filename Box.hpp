@@ -22,10 +22,10 @@ public:
   using VertexArray = BoxCommon::VertexArray;
   using ShaderProgram = BoxCommon::ShaderProgram;
 
+  glm::vec3 color;
 private:
   glm::mat4 matrix;
   int highlight = 1;
-  glm::vec3 color;
 
   ShaderProgram &prog;
   VertexArray &vao;

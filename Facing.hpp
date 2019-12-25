@@ -114,17 +114,16 @@ public:
 
       a_position.push_back(&attr);
     });
+    u_transform.set_id(prog.id());
+    u_highlight.set_id(prog.id());
+    u_color.set_id(prog.id());
   }
 
   void update_uniforms(int id) {
-    auto programid = prog.id();
     if(transform.has_changed || cubeTransform.has_changed || cam.has_changed) {
-      u_transform.set_id(programid);
       u_transform.set_data(matrix);
     }
-    u_highlight.set_id(programid);
     u_highlight.set_data(highlight);
-    u_color.set_id(programid);
     u_color.set_data(get(colors, id));
   }
 
@@ -187,6 +186,13 @@ public:
   }
 
   void setHighlight(int h) {
+    if(h == 0) {
+      box.color = glm::vec3(.1, .1, .1);
+    } else if(h == 1) {
+      box.color = glm::vec3(.8, .8, .8);
+    } else if(h == 2) {
+      box.color = glm::vec3(.8, .8, .8);
+    }
     highlight = h;
   }
 

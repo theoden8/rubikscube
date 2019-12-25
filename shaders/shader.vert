@@ -17,7 +17,7 @@ void main() {
     gshade *= 0.7;
   } else if(highlight == 1) {
     gshade *= 1.;
-  } else if(highlight == 1) {
-    gshade *= 1.;
+  } else if(highlight == 2) {
+    gshade *= .9;
   }
 }
