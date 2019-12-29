@@ -120,7 +120,10 @@ public:
     double current_time_step = fmax(glfwGetTime() - previous_time, .5);
 
     float deg = std::sin((0.5 + m.progress * .5) * M_PI) * 90. * .03 * current_time_step * speed * std::sqrt(performQueue.size());
-    if(m.is_close()) {
+#if !defined(_POSIX_VERSION)
+    deg *= 10;
+#endif
+	if((m.progress + deg / 90. > 1.) || m.is_close()) {
       deg = (1. - m.progress) * 90.;
     }
     rotate_face(rb, m, deg);

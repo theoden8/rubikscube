@@ -108,7 +108,10 @@ public:
 
   void keyboard() {
     double current_time_step = fmax(glfwGetTime() - previous_time, .5);
-    const float deg = 1. * current_time_step;
+	float deg = 1. * current_time_step;
+#if !defined(_POSIX_VERSION)
+	deg *= 10;
+#endif
     if(glfwGetKey(win_, GLFW_KEY_ESCAPE)) {
       glfwSetWindowShouldClose(win_, 1); GLERROR
     } else if(glfwGetKey(win_, GLFW_KEY_W)) {
