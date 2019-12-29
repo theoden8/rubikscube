@@ -1,7 +1,5 @@
 # README
 
-![picture](./_Icon.gif)
-
 ![DEMO](./screenshots/rubiks.gif)
 
 ## Built with
@@ -11,7 +9,7 @@
 
 ## LICENSE
 
-Not licensed yet and not for public use.
+Not licensed yet.
 
 ## Usage
 
