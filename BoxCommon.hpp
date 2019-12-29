@@ -2,14 +2,13 @@
 
 
 #include <ShaderAttrib.hpp>
-#include <Shader.hpp>
 #include <ShaderProgram.hpp>
 
 
 class BoxCommon {
 public:
-
-  using ShaderAttrib = gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3>;
+  using ShaderBuffer = gl::Buffer<GL_ARRAY_BUFFER, gl::BufferElementType::VEC3>;
+  using ShaderAttrib = gl::Attrib<ShaderBuffer>;
   using VertexArray = gl::VertexArray<ShaderAttrib>;
   using ShaderProgram = gl::ShaderProgram<
     gl::VertexShader,
@@ -18,6 +17,7 @@ public:
   >;
 
   ShaderProgram program;
+  ShaderBuffer vposition;
   ShaderAttrib a_position;
   VertexArray vao;
 
@@ -27,13 +27,14 @@ public:
       dir + "shaders/shader.geom" ,
       dir + "shaders/shader.frag"
     }),
-    a_position(vpos_name),
+    vposition(),
+    a_position(vpos_name, vposition),
     vao(a_position)
   {}
 
   void init() {
-    ShaderAttrib::init(a_position);
-    a_position.allocate<GL_STATIC_DRAW>(std::vector<GLfloat>{
+    vposition.init();
+    vposition.allocate<GL_STATIC_DRAW>(std::vector<GLfloat>{
       0,0,1, 0,1,1, 0,1,0,
       0,1,0, 0,0,0, 0,0,1,
 

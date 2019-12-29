@@ -1,5 +1,5 @@
 #!/bin/bash
 
 [ "$(ls *.trace)" ] && rm -vf *.trace
-apitrace trace ./rubik
+apitrace trace ./rubikscube
 apitrace dump *.trace

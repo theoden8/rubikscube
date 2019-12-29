@@ -177,7 +177,7 @@ public:
 
     FILE *file = fopen(filename.c_str(), "r");
     if(file == nullptr) {
-      fprintf(stderr, "unable to open file '%s' for reading\n", filename.c_str());
+      fprintf(stderr, "error: unable to open file '%s' for reading\n", filename.c_str());
       abort();
     }
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cmath>
-
 #include <array>
 #include <map>
 
@@ -121,7 +119,6 @@ struct RubiksCube {
       /* Logger::Info("%s\n", f.str().c_str()); */
       f.init();
     }
-    quadcommon.finish_init();
 
     set_color(Face::X_FRONT, WHITE);
     set_color(Face::X_BACK,  YELLOW);

@@ -5,3 +5,6 @@ rubik
 rubik.dSYM
 rubik.log
 unused
+/glm
+/GLFW
+/epoxy

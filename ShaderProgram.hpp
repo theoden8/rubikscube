@@ -14,6 +14,8 @@
 namespace gl {
 template <typename... ShaderTs>
 class ShaderProgram {
+  using self_t = ShaderProgram<ShaderTs...>;
+
   GLuint programId = 0;
   std::tuple<ShaderTs...> shaders;
   bool shaderOwnership;
@@ -161,7 +163,7 @@ public:
 /*   } */
 
   template <typename... AttribTs>
-  static void init(ShaderProgram<ShaderTs...> &program, gl::VertexArray<AttribTs ...> &vao) {
+  static void init(self_t &program, gl::VertexArray<AttribTs ...> &vao) {
     program.init(vao);
   }
 
@@ -182,12 +184,12 @@ public:
     glUseProgram(progId); GLERROR
   }
 
-  static void use(ShaderProgram<ShaderTs...> &program) {
+  static void use(self_t &program) {
     program.use();
   }
 
   void use() {
-    use(id());
+    this->use(id());
   }
 
   static void dispatch(size_t x, size_t y, size_t z) {
@@ -198,7 +200,7 @@ public:
     glUseProgram(0); GLERROR
   }
 
-  static void clear(ShaderProgram<ShaderTs...> &program) {
+  static void clear(self_t &program) {
     program.clear();
   }
 
@@ -269,11 +271,11 @@ public:
         for(int j = 0; j < size; j++) {
           char long_name[64];
           sprintf(long_name, "%s[%d]", name, j);
-          int location = glGetAttribLocation(programId, long_name);
+          int location = glGetAttribLocation(programId, long_name); GLERROR
           Logger::Info("  %d) type:%s name:%s location:%d\n", i, GL_type_to_string(type), long_name, location);
         }
       } else {
-        int location = glGetAttribLocation(programId, name);
+        int location = glGetAttribLocation(programId, name); GLERROR
         Logger::Info("  %d) type:%s name:%s location:%d\n", i, GL_type_to_string(type), name, location);
       }
     }
@@ -291,11 +293,11 @@ public:
         for(int j = 0; j < size; j++) {
           char long_name[256];
           sprintf(long_name, "%s[%d]", name, j);
-          int location = glGetUniformLocation(programId, long_name);
+          int location = glGetUniformLocation(programId, long_name); GLERROR
           Logger::Info("  %d) type:%s name:%s location:%d\n", i, GL_type_to_string(type), long_name, location);
         }
       } else {
-        int location = glGetUniformLocation(programId, name);
+        int location = glGetUniformLocation(programId, name); GLERROR
         Logger::Info("  %d) type:%s name:%s location:%d\n", i, GL_type_to_string(type), name, location);
       }
     }

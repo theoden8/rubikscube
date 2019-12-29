@@ -4,6 +4,10 @@
 #include <iostream>
 #include <string>
 
+#if !defined(DEBUG) && defined(_POSIX_VERSION)
+#warning "asserts, checks and logging are disabled"
+#endif
+
 #ifdef COMPILE_GLDEBUG
 #include <incgraphics.h>
 #endif

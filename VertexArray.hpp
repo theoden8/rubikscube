@@ -1,5 +1,12 @@
 #pragma once
 
+#include <tuple>
+
+#include <Debug.hpp>
+#include <Logger.hpp>
+#include <Tuple.hpp>
+
+#include <ShaderAttrib.hpp>
 
 namespace gl {
 
@@ -44,28 +51,21 @@ struct VertexArray {
     bind(vaoId);
   }
 
-  void enable_d(GLuint ind) {
+  template <typename AttribT>
+  void enable(const AttribT &attrib) {
     this->bind();
-    glEnableVertexAttribArray(ind); GLERROR
+    glEnableVertexAttribArray(Tuple::lfind(attributes, attrib)); GLERROR
     this->unbind();
   }
 
   template <typename AttribT>
-  void enable(const AttribT &attrib) {
-    int ind = Tuple::lfind(attributes, attrib);
-    ASSERT(ind != -1);
-    this->enable_d(ind);
-  }
-
-  template <typename AttribT>
-  void set_access(const AttribT &attrib, size_t stride=0, int index=-1) {
+  void set_access(const AttribT &attrib, size_t stride=0) {
     this->bind();
 
     attrib.bind();
 
-    using atype = a_cast_type<AttribT::attrib_type>;
-    index = (index == -1) ? Tuple::lfind(attributes, attrib) : index;
-    glVertexAttribPointer(index,
+    using atype = a_cast_type<AttribT::element_type>;
+    glVertexAttribPointer(Tuple::lfind(attributes, attrib),
       sizeof(typename atype::type) / sizeof(typename atype::vtype),
       gl_scalar_enum<typename atype::vtype>::value,
       GL_FALSE,
@@ -77,17 +77,11 @@ struct VertexArray {
     this->unbind();
   }
 
-  void disable_d(GLuint ind) {
-    this->bind();
-    glDisableVertexAttribArray(ind); GLERROR
-    this->unbind();
-  }
-
   template <typename AttribT>
   void disable(const AttribT &attrib) {
-    int ind = Tuple::lfind(attributes, attrib);
-    ASSERT(ind != -1);
-    this->disable_d(ind);
+    this->bind();
+    glDisableVertexAttribArray(Tuple::lfind(attributes, attrib)); GLERROR
+    this->unbind();
   }
 
   template <GLenum PRIMITIVES>
@@ -96,8 +90,9 @@ struct VertexArray {
     if(no_primitives == SIZE_MAX) {
       size_t maxprimitives = 0;
       Tuple::for_each(attributes, [&](const auto &attr) mutable -> void {
-        if(attr.numberOfPrimitives > maxprimitives) {
-          maxprimitives = attr.numberOfPrimitives;
+        ASSERT(attr.buf != nullptr);
+        if(attr.buf->numberOfElements > maxprimitives) {
+          maxprimitives = attr.buf->numberOfElements;
         }
       });
       no_primitives = maxprimitives - start;

@@ -39,17 +39,16 @@ public:
     gl::GeometryShader,
     gl::FragmentShader
   >;
-  using ShaderAttrib = gl::Attrib<GL_ARRAY_BUFFER, gl::AttribType::VEC3>;
-  using VertexArray = gl::VertexArray<
-    ShaderAttrib, ShaderAttrib,
-    ShaderAttrib, ShaderAttrib,
-    ShaderAttrib, ShaderAttrib
-  >;
+  using ShaderBuffer = gl::Buffer<GL_ARRAY_BUFFER, gl::BufferElementType::VEC3>;
+  using ShaderAttrib = gl::Attrib<ShaderBuffer>;
+  using VertexArray = gl::VertexArray<ShaderAttrib>;
+
   ShaderProgram program;
-  ShaderAttrib
+  ShaderBuffer
     vpos_xf, vpos_xb,
     vpos_yf, vpos_yb,
     vpos_zf, vpos_zb;
+  ShaderAttrib a_position;
   VertexArray vao;
 
   static constexpr int VAO_ATTRIB_VPOSITION = 0;
@@ -64,60 +63,56 @@ public:
       dir + "shaders/shader.geom",
       dir + "shaders/shader.frag"
     }),
-    vpos_xf(vpos_name),
-    vpos_xb(vpos_name),
-    vpos_yf(vpos_name),
-    vpos_yb(vpos_name),
-    vpos_zf(vpos_name),
-    vpos_zb(vpos_name),
-    vao(
-      vpos_xf, vpos_xb,
-      vpos_yf, vpos_yb,
-      vpos_zf, vpos_zb
-    )
-    /* vshader(dir + "shaders/shader.vert"), */
-    /* gshader(dir + "shaders/shader.geom"), */
-    /* fshader(dir + "shaders/shader.frag") */
+    vpos_xf(),
+    vpos_xb(),
+    vpos_yf(),
+    vpos_yb(),
+    vpos_zf(),
+    vpos_zb(),
+    a_position(vpos_name),
+    vao(a_position)
   {}
 
   void init() {
-    ShaderAttrib::init(vpos_xf);
+    ShaderBuffer::init(vpos_xf);
     vpos_xf.allocate<GL_STATIC_DRAW>(x_front);
 
-    ShaderAttrib::init(vpos_xb);
+    ShaderBuffer::init(vpos_xb);
     vpos_xb.allocate<GL_STATIC_DRAW>(x_back);
 
-    ShaderAttrib::init(vpos_yf);
+    ShaderBuffer::init(vpos_yf);
     vpos_yf.allocate<GL_STATIC_DRAW>(y_front);
 
-    ShaderAttrib::init(vpos_yb);
+    ShaderBuffer::init(vpos_yb);
     vpos_yb.allocate<GL_STATIC_DRAW>(y_back);
 
-    ShaderAttrib::init(vpos_zf);
+    ShaderBuffer::init(vpos_zf);
     vpos_zf.allocate<GL_STATIC_DRAW>(z_front);
 
-    ShaderAttrib::init(vpos_zb);
+    ShaderBuffer::init(vpos_zb);
     vpos_zb.allocate<GL_STATIC_DRAW>(z_back);
 
     VertexArray::init(vao);
     VertexArray::bind(vao);
 
+    a_position.select_buffer(vpos_xf);
+    vao.enable(a_position);
+
     ShaderProgram::init(program, vao);
 
+    vao.disable(a_position);
     VertexArray::unbind();
   }
 
-  void finish_init() {
-  }
-
   void clear() {
-    ShaderAttrib::clear(vpos_xf);
-    ShaderAttrib::clear(vpos_xb);
-    ShaderAttrib::clear(vpos_yf);
-    ShaderAttrib::clear(vpos_yb);
-    ShaderAttrib::clear(vpos_zf);
-    ShaderAttrib::clear(vpos_zb);
-    vao.clear();
+    ShaderBuffer::clear(vpos_xf);
+    ShaderBuffer::clear(vpos_xb);
+    ShaderBuffer::clear(vpos_yf);
+    ShaderBuffer::clear(vpos_yb);
+    ShaderBuffer::clear(vpos_zf);
+    ShaderBuffer::clear(vpos_zb);
+    ShaderAttrib::clear(a_position);
+    VertexArray::clear(vao);
     ShaderProgram::clear(program);
   }
 };

@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -27,13 +28,15 @@ class Window {
   GLFWwindow *win_ = nullptr;
   size_t width, height;
 
+  double previous_time = 0.;
+
   void init_glfw() {
     ASSERT(glfwInit() == 1);
 
     /* glfwWindowHint(GLFW_SAMPLES, 4); */
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL
     // open a window and create its OpenGL context
     win_ = glfwCreateWindow(width, height, "Rubiks Cube", nullptr, nullptr);
@@ -67,8 +70,6 @@ public:
     camera(),
     rb(camera, dir)
   {
-    Logger::Setup("rubik.log");
-    Logger::MirrorLog(stderr);
   }
 
   void run() {
@@ -106,7 +107,8 @@ public:
   }
 
   void keyboard() {
-    const float deg = 0.5;
+    double current_time_step = fmax(glfwGetTime() - previous_time, .5);
+    const float deg = 1. * current_time_step;
     if(glfwGetKey(win_, GLFW_KEY_ESCAPE)) {
       glfwSetWindowShouldClose(win_, 1); GLERROR
     } else if(glfwGetKey(win_, GLFW_KEY_W)) {
@@ -122,6 +124,7 @@ public:
     } else if(glfwGetKey(win_, GLFW_KEY_E)) {
       camera.transform.Rotate(0, 0, 1, -deg);
     }
+    previous_time = glfwGetTime();
   }
 
   void keypress(int key, int scancode, int action, int mods) {
@@ -148,9 +151,8 @@ public:
     }
   }
 
-  ~Window() {
-    Logger::Close();
-  }
+  ~Window()
+  {}
 };
 
 void keypress_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {

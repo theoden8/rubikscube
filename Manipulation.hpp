@@ -1,5 +1,10 @@
 #pragma once
 
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643383279502884L
+#endif
 
 #include <vector>
 #include <queue>
@@ -32,7 +37,7 @@ struct Manipulation {
   }
 
   inline bool is_close() const {
-    return std::abs(progress - 1.0) < 1e-1;
+    return std::abs(progress - 1.0) < 1e-2;
   }
 
   inline decltype(auto) inverse() const {
@@ -51,6 +56,8 @@ class ManipulationPerformer {
   std::queue<Manipulation> performQueue;
   int currentIndex = -1;
   float speed = 1.;
+
+  double previous_time = 0.;
 
   template <typename RubiksCubeT>
   void rotate_face(RubiksCubeT &rb, const Manipulation &m, float deg) {
@@ -110,13 +117,17 @@ public:
   void rotate_face(RubiksCubeT &rb, Manipulation &m) {
     if(m.is_complete())return;
 
-    float deg = std::sin((0.5 + m.progress * .5) * M_PI) * 90. * .01 * speed * std::sqrt(performQueue.size());
+    double current_time_step = fmax(glfwGetTime() - previous_time, .5);
+
+    float deg = std::sin((0.5 + m.progress * .5) * M_PI) * 90. * .03 * current_time_step * speed * std::sqrt(performQueue.size());
     if(m.is_close()) {
       deg = (1. - m.progress) * 90.;
     }
     rotate_face(rb, m, deg);
 
     m.progress = (m.progress * 90. + deg) / 90.;
+
+    previous_time = glfwGetTime();
   }
 
   void set_new(Manipulation m) {

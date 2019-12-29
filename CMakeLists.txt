@@ -28,11 +28,11 @@ else()
 
   pkg_check_modules(EPOXY REQUIRED IMPORTED_TARGET epoxy)
   pkg_check_modules(GLFW3 REQUIRED IMPORTED_TARGET glfw3)
-  pkg_check_modules(GLM REQUIRED IMPORTED_TARGET glm)
+  # pkg_check_modules(GLM REQUIRED IMPORTED_TARGET glm)
   target_link_libraries(${exec}
     PkgConfig::EPOXY
     PkgConfig::GLFW3
-    PkgConfig::GLM
+    # PkgConfig::GLM
   )
 endif(WIN32)
 

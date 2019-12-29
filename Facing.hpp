@@ -39,12 +39,14 @@ private:
   std::list<glm::vec3> colors;
 
   using ShaderProgram = QuadCommon::ShaderProgram;
+  using ShaderBuffer = QuadCommon::ShaderBuffer;
   using ShaderAttrib = QuadCommon::ShaderAttrib;
   using VertexArray = QuadCommon::VertexArray;
 
   ShaderProgram &prog;
-  std::list<ShaderAttrib *> a_position;
+  ShaderAttrib &a_position;
   VertexArray &vao;
+  std::vector<ShaderBuffer *> face_buffers;
 
   gl::Uniform<gl::UniformType::INTEGER> u_highlight;
   gl::Uniform<gl::UniformType::VEC3> u_color;
@@ -65,6 +67,7 @@ public:
     face_types(face_types),
     quadcommon(quadcommon),
     prog(quadcommon.program),
+    a_position(quadcommon.a_position),
     vao(quadcommon.vao),
     u_highlight("highlight"),
     u_color("color"),
@@ -83,13 +86,14 @@ public:
   }
 
   template <typename F>
-  void iterate_face_attributes(F &&func) {
-    if(has_face(Face::X_FRONT))func(quadcommon.vpos_xf);
-    if(has_face(Face::X_BACK)) func(quadcommon.vpos_xb);
-    if(has_face(Face::Y_FRONT))func(quadcommon.vpos_yf);
-    if(has_face(Face::Y_BACK)) func(quadcommon.vpos_yb);
-    if(has_face(Face::Z_FRONT))func(quadcommon.vpos_zf);
-    if(has_face(Face::Z_BACK)) func(quadcommon.vpos_zb);
+  void iterate_face_buffers(F &&func) {
+    int i = 0;
+    if(has_face(Face::X_FRONT))func(quadcommon.vpos_xf, i++);
+    if(has_face(Face::X_BACK)) func(quadcommon.vpos_xb, i++);
+    if(has_face(Face::Y_FRONT))func(quadcommon.vpos_yf, i++);
+    if(has_face(Face::Y_BACK)) func(quadcommon.vpos_yb, i++);
+    if(has_face(Face::Z_FRONT))func(quadcommon.vpos_zf, i++);
+    if(has_face(Face::Z_BACK)) func(quadcommon.vpos_zb, i++);
   }
 
   int faceCount = -1;
@@ -108,11 +112,10 @@ public:
 
   void init() {
     box.init();
-    iterate_face_attributes([&](auto &attr) mutable -> void {
+    iterate_face_buffers([&](auto &buf, int i) mutable -> void {
       /* Logger::Info("  face\n"); */
       colors.push_back(glm::vec3(1,1,1));
-
-      a_position.push_back(&attr);
+      face_buffers.push_back(&buf);
     });
     u_transform.set_id(prog.id());
     u_highlight.set_id(prog.id());
@@ -216,30 +219,35 @@ public:
 
     Transformation boxCubeTransform = cubeTransform;
     boxCubeTransform.Scale(.98);
-    box.draw(boxCubeTransform);
+    /* box.draw(boxCubeTransform); */
 
     ShaderProgram::use(prog);
-    for(int i = 0; i < a_position.size(); ++i) {
+    for(int i = 0; i < face_buffers.size(); ++i) {
+      auto &buf = *face_buffers[i];
+
+      a_position.select_buffer(buf);
+
+      VertexArray::bind(vao);
+
+      vao.set_access(a_position);
+      vao.enable(a_position);
+      vao.bind();
+      a_position.bind();
+
       update_uniforms(i);
 
-      auto &current_vpos = *get(a_position, i);
-      int current_vao_attrib_position = 0;
-
-      vao.enable_d(current_vao_attrib_position);
-      vao.set_access(current_vpos, 0, current_vao_attrib_position);
-      vao.bind();
-      current_vpos.bind();
       VertexArray::draw<GL_TRIANGLES>(vao);
-      vao.disable_d(current_vao_attrib_position);
-    }
+
+      vao.disable(a_position);
+      VertexArray::unbind();
+
+      a_position.deselect_buffer();
+    };
     ShaderProgram::unuse();
     transform.has_changed = cubeTransform.has_changed = false;
   }
 
   void clear() {
-    for(int i = 0; i < no_faces(); ++i) {
-      ShaderAttrib::clear(*get(a_position, i));
-    }
     box.clear();
   }
 };
