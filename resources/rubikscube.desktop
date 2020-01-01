@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Rubiks Cube
+Type=Application
+Terminal=false
+Exec=rubikscube
+Icon=rubikscube
+Categories=Game;

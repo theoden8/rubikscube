@@ -17,26 +17,28 @@ add_executable(${exec} ./main.cpp ${HEADERS} ${SHADERS})
 include_directories($(CMAKE_CURRENT_SOURCE_DIR))
 
 file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY resources/rubikscube.png DESTINATION ${CMAKE_BINARY_DIR})
 if(WIN32)
-    include_directories(${EPOXY_INCLUDE_DIRS})
-    target_link_libraries(${exec} epoxy)
+  include_directories(${EPOXY_INCLUDE_DIRS})
+  target_link_libraries(${exec} epoxy)
 
-    include_directories(${GLFW3_INCLUDE_DIRS})
-    target_link_libraries(${exec} glfw3)
+  include_directories(${GLFW3_INCLUDE_DIRS})
+  target_link_libraries(${exec} glfw3)
 else()
   find_package(PkgConfig REQUIRED)
 
   pkg_check_modules(EPOXY REQUIRED IMPORTED_TARGET epoxy)
   pkg_check_modules(GLFW3 REQUIRED IMPORTED_TARGET glfw3)
-  # pkg_check_modules(GLM REQUIRED IMPORTED_TARGET glm)
+  pkg_check_modules(GLM REQUIRED IMPORTED_TARGET glm)
   target_link_libraries(${exec}
     PkgConfig::EPOXY
     PkgConfig::GLFW3
-    # PkgConfig::GLM
+    PkgConfig::GLM
   )
 endif(WIN32)
 
 if(UNIX AND NOT APPLE)
+  install(DIRECTORY resources DESTINATION "${CMAKE_INSTALL_PREFIX}/..")
   install(TARGETS ${exec} DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(DIRECTORY shaders DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 endif()

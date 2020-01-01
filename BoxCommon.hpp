@@ -58,8 +58,6 @@ public:
     VertexArray::bind(vao);
 
     vao.set_access(a_position);
-
-    // enable all attributes
     vao.enable(a_position);
 
     ShaderProgram::init(program, vao);
@@ -69,6 +67,7 @@ public:
 
   void clear() {
     ShaderAttrib::clear(a_position);
+    ShaderBuffer::clear(vposition);
     VertexArray::clear(vao);
     ShaderProgram::clear(program);
   }
