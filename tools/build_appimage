@@ -1,0 +1,17 @@
+#!/bin/bash
+
+[ -z "$LINUXDEPLOY_APPIMAGE" ] && {
+  >&2 echo "error: LINUXDEPLOY_APPIMAGE is not defined"
+  exit 1
+}
+
+mkdir build_appimage
+cd build_appimage || {
+  >&2 echo "error: failed to change directory"
+  exit 1
+}
+cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr || {
+  >&2 echo "error running cmake"
+}
+make install -j4 DESTDIR=AppDir
+$LINUXDEPLOY_APPIMAGE --appdir AppDir -i AppDir/resources/rubikscube.png -d AppDir/resources/rubikscube.desktop -e AppDir/usr/rubikscube --output appimage

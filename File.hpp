@@ -10,6 +10,7 @@
 
 #if __unix__ || __linux__ || __APPLE__
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/file.h>
 #else

@@ -1,4 +1,5 @@
 build*
+!tools/build_appimage
 *.trace
 *.log
 rubik
