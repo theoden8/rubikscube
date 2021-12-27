@@ -7,10 +7,6 @@
 * c++, make
 * glm, glfw, opengl4, glsl
 
-## LICENSE
-
-Not licensed yet.
-
 ## Usage
 
 ### Compilation
